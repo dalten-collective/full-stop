@@ -1,0 +1,9 @@
+:~
+  title+'Full Stop'
+  info+'A Period Tracker'
+  color+0x7f.0002
+  site+/apps/moon
+  version+[0 0 1]
+  license+'REKT'
+  website+'https://www.quartus.co'
+==
