@@ -6,7 +6,7 @@
 |%
 +$  versioned-state  $%(state-0)
 ::
-+$  state-0  [%0 =moon =opts]
++$  state-0  [%0 =moon =rain =fire =bear =hold =opts]
 ::
 +$  moon  ((mop time flow) gth)                          ::  track cycles, flow and non-menstrual spotting
 +$  flow                                                 ::  flow includes:
@@ -16,17 +16,18 @@
       edit=time                                          ::    - edit time to know which update to honor
   ==
 ::
-::+$  rain  ((mop time [=cons edit=time]) gth)             ::  track cervical mucousal discharge 
-::+$  fire  ((mop time [=base edit=time]) gth)             ::  track basal body temperature
-::+$  bear  (unit star=time week=@ud edit=time)            ::  track pregnancy
++$  rain  ((mop time ,[=cons edit=time]) gth)             ::  track cervical mucousal discharge 
++$  fire  ((mop time ,[=base edit=time]) gth)             ::  track basal body temperature
++$  bear  (unit star=time week=@ud edit=time)            ::  track pregnancy
 +$  opts  [noti=? fert=? edit=time]                      ::  options - notifications and fertility predictions
-::+$  hold
-::  %-  unit
-::  $:  $?  [%pill h=@ud m=@ud am=? miss=(set time)]       ::  track hormonal pill b.c., record missed pills
-::          [%term wen=time]                               ::  track implant/term b.c., record replacement date
-::      ==
-::      edit=time
-::  ==
++$  hold
+ %-  unit
+ $:  $=  type
+     $%  [%pill h=@ud m=@ud am=? miss=(set time)]       ::  track hormonal pill b.c., record missed pills
+         [%term wen=time]                               ::  track implant/term b.c., record replacement date
+     ==
+     edit=time
+ ==
 ::
 +$  card  card:agent:gall
 --  
@@ -47,7 +48,7 @@
   ++  on-init
     ^-  (quip card _this)
     %-  (slog '%full-stop -online' ~)
-    :_  this(state [%0 ~ [%.n %.n now.bowl]])
+    :_  this(state [%0 ~ ~ ~ ~ ~ [%.n %.n now.bowl]])
     ~[(~(connect pass /eyre) [~ /apps/full-stop/knife] %full-stop)]
   ++  on-save
     ^-  vase
