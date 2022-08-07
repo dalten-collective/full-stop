@@ -1,4 +1,4 @@
-::  blood-for-the-blood-god
+::  blood, for the blood god, naturally.
 ::
 |%
 ::
@@ -12,8 +12,8 @@
       pregnant
   ==
 +$  pregnant
-  $%  [%bear ~ wen=time]                                 ::  (Un)Set Prengancy (Week Count per Last Period)
-      [%move wen=time due=?]                             ::  Adjust Week Count by Due Date or Start Date
+  $%  [%bear wen=time]                                   ::  (un)set prengancy (week count per last period)
+      [%move wen=time due=?]                             ::  adjust week count by due date or start date
   ==
 +$  election
   $%  [%noti on=? wen=time]
@@ -21,25 +21,25 @@
   ==
 ::
 +$  sanguine
-  $%  [%flow wen=time]                                   ::  Note menstruation start
-      [%stop wen=time]                                   ::  Note menstruation stop
+  $%  [%flow wen=time wix=time]                          ::  note menstruation start
+      [%stop wen=time wix=time]                          ::  note menstruation stop
+      [%rate how=(unit rate) wen=time wix=time]          ::  note flow rate
+      [%spot ? wen=time]                                 ::  note spotting
   ==
 ::
 +$  physical
-  $%  [%temp =base wen=time]                             ::  Note basal body temp for some day
-      [%rate =rate wen=time]                             ::  Note flow rate
-      [%muco =cons wen=time]                             ::  Note cervical mucosal consistency
-      [%spot wen=time]                                   ::  Note spotting
+  $%  [%temp =base wen=time]                             ::  note basal body temp for some day
+      [%muco =cons wen=time]                             ::  note cervical mucosal consistency
   ==
 ::
 +$  controls
-  $%  [%pill wen=@da]                                    ::  Set when you take the pill, daily (for app notifications)
-      [%term wen=@da again=@dr]                          ::  Set when you've received a term
-      [%miss wen=@da]                                    ::  (Un)Set a missed pill-taking day
-      [%free ~]                                          ::  End b.c. tracking
+  $%  [%pill wen=@da]                                    ::  set when you take the pill, daily
+      [%term wen=@da again=@dr]                          ::  set a term b.c., when to replace it
+      [%miss wen=@da]                                    ::  (un)set a missed pill-taking day
+      [%free ~]                                          ::  end b.c. tracking
   ==
 ::
-+$  rate  ?(%1 %2 %3 %4 %5)                              ::  Light to Heavy
-+$  cons  ?(%1 %2 %3 %4 %5)                              ::  Thick to Thin
-+$  base  @rs                                            ::  Recorded in Fahrenheit
++$  rate  ?(%1 %2 %3 %4 %5)                              ::  light to heavy
++$  cons  ?(%1 %2 %3 %4 %5)                              ::  thick to thin
++$  base  @rs                                            ::  recorded in fahrenheit
 --
