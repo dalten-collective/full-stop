@@ -7,24 +7,24 @@
 +$  activity
   $%  sanguine
       physical
-      election
       controls
+      relation
+      election
       pregnant
   ==
 +$  pregnant
   $%  [%bear ~]                                          ::  (un)set prengancy (week count per last period)
       [%move wen=time due=?]                             ::  adjust week count by due date or start date
   ==
+::
 +$  election
-  $%  [%noti on=? wen=time]
-      [%fert on=? wen=time]
+  $%  [%noti on=? wen=time]                              ::  turn on/off app notifications
+      [%fert on=? wen=time]                              ::  turn on/off fertility window
   ==
 ::
-+$  sanguine
-  $%  [%flow wen=time]                                   ::  note menstruation start
-      [%stop wen=time]                                   ::  note menstruation stop
-      [%rate how=(unit rate) wen=time]                   ::  note flow rate
-      [%spot ? wen=time]                                 ::  note spotting
++$  relation
+  $%  [%mate wen=time note=(unit @t) barr=?]             ::  note a sexual encounter
+      [%drop wen=time]                                   ::  remove a sexual encounter
   ==
 ::
 +$  physical
@@ -32,10 +32,17 @@
       [%muco =cons wen=time]                             ::  note cervical mucosal consistency
   ==
 ::
++$  sanguine
+  $%  [%flow wen=time]                                   ::  note menstruation start
+      [%stop wen=time]                                   ::  note menstruation stop
+      [%rate how=(unit rate) wen=time]                   ::  note flow rate
+      [%spot wen=time]                                   ::  note spotting
+  ==
+::
 +$  controls
-  $%  [%pill wen=@da]                                    ::  set when you take the pill, daily
-      [%term wen=@da again=@dr]                          ::  set a term b.c., when to replace it
-      [%miss wen=@da]                                    ::  (un)set a missed pill-taking day
+  $%  [%pill wen=time]                                   ::  set when you take the pill, daily
+      [%term wen=time again=@dr]                         ::  set a term b.c., when to replace it
+      [%miss wen=time]                                   ::  (un)set a missed pill-taking day
       [%free ~]                                          ::  end b.c. tracking
   ==
 ::

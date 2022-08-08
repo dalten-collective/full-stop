@@ -14,6 +14,7 @@
       =spot                                              ::  spotting
       =rain                                              ::  mucosal discharge
       =fire                                              ::  basal body temp
+      =mate                                              ::  unprotected sex
       =bear                                              ::  pregnancy
       =hold                                              ::  birth control
       =opts                                              ::  system options
@@ -29,6 +30,7 @@
 +$  spot  (set time)                                     ::  track out of cycle bleeding, loosely (no edit filtering)
 +$  rain  (cycle [p=cons edit=time])                     ::  track cervical mucousal viscocity
 +$  fire  (cycle [p=base edit=time])                     ::  track basal body temperature
++$  mate  (set [p=time q=(unit @t) r=?])                 ::  track sexual encounters with optional details
 +$  bear  (unit star=time week=@ud edit=time)            ::  track pregnancy
 +$  opts  [noti=? fert=? edit=time]                      ::  options - notifications and fertility predictions
 +$  hold
@@ -59,7 +61,7 @@
   ++  on-init
     ^-  (quip card _this)
     %-  (slog '%full-stop -online' ~)
-    :_  this(state [%0 ~ ~ ~ ~ ~ ~ [%.n %.n now.bowl]])
+    :_  this(state [%0 ~ ~ ~ ~ ~ ~ ~ [%.n %.n now.bowl]])
     ~[(~(connect pass /eyre) [~ /apps/full-stop/knife] %full-stop)]
   ++  on-save
     ^-  vase
@@ -141,6 +143,7 @@
     ?-    -.act.i.drop
       ?(%noti %fert)  (choix i.drop)
       ?(%bear %move)  (petit i.drop)
+      ?(%drop %mate)  (minou i.drop)
     ::
         ?(%flow %stop %rate %spot)
       (coeur i.drop)
@@ -363,7 +366,13 @@
     ==
   ++  vivre
     |=  [pys=physical den=time]
-    `state
+    ?-    -.pys
+        %temp
+      `state
+    ::
+        %muco
+      `state
+    ==
   ++  petit
     |=  [pag=pregnant den=time]
     `state
@@ -372,6 +381,9 @@
     `state
   ++  choix
     |=  [opt=election den=time]
+    `state
+  ++  minou
+    |=  [sex=relation den=time]
     `state
   --
 --
