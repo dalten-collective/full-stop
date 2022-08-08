@@ -26,7 +26,7 @@
       edit=time                                          ::    - last edit date
   ==
 ::
-+$  spot  (set [p=time edit=time])                       ::  out of cycle bleeding
++$  spot  (set time)                                     ::  track out of cycle bleeding, loosely (no edit filtering)
 +$  rain  (cycle [p=cons edit=time])                     ::  track cervical mucousal viscocity
 +$  fire  (cycle [p=base edit=time])                     ::  track basal body temperature
 +$  bear  (unit star=time week=@ud edit=time)            ::  track pregnancy
@@ -74,7 +74,7 @@
     ^-  (quip card _this)
     ?.  =(%dot-point mark)  (on-poke:def mark vase)
     =^  cards  state
-      (syzygy (flop !<(drop vase)))
+      (syzygy (flop !<(drop vase)))                      ::  handle updates in reverse order
     [cards this]
   ++  on-arvo
     |=  [=wire sign=sign-arvo]
@@ -100,9 +100,11 @@
     |=  jon=json
     ^-  card
     [%give %fact ~[/website] json+!>(jon)]
+  ::
   ++  note                                               ::  - send error message
     |=  [m=^tape j=json]
     (send (pairs ~[message+s+(crip m) error+j]))
+  ::
   ++  flow                                               ::  - send add/del period
     |=  [wen=^time flew=(unit ^flow)]
     ^-  card
@@ -117,13 +119,23 @@
         ^-  (list json)
         %+  turn  (bap:tick rate.u.flew)
         |=([p=^time q=rate] a+~[(sect p) (numb q)])
-    == 
+    ==
+  ::
+  ++  spot                                               ::  - send spot diff
+    |=  [old=^^spot new=^^spot]
+    ^-  card
+    =/  add=(list ^time)  ~(tap in (~(dif in new) old))
+    =/  rem=(list ^time)  ~(tap in (~(dif in old) new))
+    =;  oke=[p=json q=json]
+      (send (pairs ~[add-spots+p.oke del-spots+q.oke]))
+    =,  enjs:format
+    :-  a+(turn add |=(t=@da (sect t)))
+    a+(turn rem |=(t=@da (sect t)))
   --
 ++  syzygy                                               :: input handler
   |=  =drop
   =|  caz=(list card)
   |^
-  |-
   ?~  drop  [caz state]
   =^  cards  state
     ?-    -.act.i.drop
@@ -143,38 +155,211 @@
     drop  t.drop
     caz  (weld cards caz)
   ==
+  ::
   ++  coeur
     |=  [san=sanguine den=time]
     =+  tick=(lunar flow)
     ?-    -.san
-        %flow
-      ?~  (has:tick moon wen.san)
+        %flow                                            ::  handle add/del period
+      =.  wen.san  (sub wen.san (mod wen.san ~d1))       ::  always midnight, sis
+      ?:  (has:tick moon wen.san)
         =/  last=flow  (got:tick moon wen.san)
-        ?:  (gth edit.last den)  `state
-        :-  ~[(flow:apogee wen.san ~)]
+        ?:  (gth edit.last den)  `state                  ::  - ignore old updates
+        :-  ~[(flow:apogee wen.san ~)]                   ::  - delete an old period record
         state(moon +:(del:tick moon wen.san))
+        ::
       ?~  prior=(tab:tick moon `wen.san 1)
-        :-  ~[(flow:apogee wen.san [~ *flow])]
-        state(moon (put:tick moon wen.san *flow))
+        :-  ~[(flow:apogee wen.san [~ [~ ~ den]])]       ::  - start a period
+        state(moon (put:tick moon wen.san [~ ~ den]))
+        ::
       ?.  ?=(~ stop.val.i.prior)
-        :-  ~[(flow:apogee wen.san [~ *flow])]
-        state(moon (put:tick moon wen.san *flow))
+        :-  ~[(flow:apogee wen.san [~ [~ ~ den]])]       ::  - start a period
+        state(moon (put:tick moon wen.san [~ ~ den]))
+        ::
       =/  last=tape
-        =+  dat=(yore key.i.prior)
-        "{(scow %ud m.dat)}/{(scow %ud d.t.dat)}/{(scow %ud y.dat)}"
-      =-  [~[(note:apogee -)] state]
+        =+  d=(yore key.i.prior)
+        "{(scow %ud m.d)}/{(scow %ud d.t.d)}/{(scow %ud y.d)}"
+      =-  [~[(note:apogee -)] state]                     ::  - fail elegantly
       =,  enjs:format
       :_  (frond need-flow-stop+(sect key.i.prior))
       """
       The period starting on {last} doesn't have a stop date.
       Please enter one first before entering the start of your next period.
       """
-        %stop
-      `state
-        %rate
-      `state
-        %spot
-      `state
+    ::
+        %stop                                            ::  handle stop/adjust period
+      =.  wen.san  (sub wen.san (mod wen.san ~d1))       ::  always midnight, sis
+      =+  tock=(lunar rate)
+      ?~  prior=(tab:tick moon `wen.san 1)
+        =/  stop=tape
+          =+  d=(yore wen.san)
+          "{(scow %ud m.d)}/{(scow %ud d.t.d)}/{(scow %ud y.d)}"
+        =-  [~[(note:apogee -)] state]                   ::  - fail gracefully
+        =,  enjs:format
+        :_  (frond need-flow-start+(sect wen.san))
+        """
+        There is no known period prior to {stop} to which we can apply this.
+        Please enter a period starting before this stop date and resubmit.
+        """
+        ::
+      ?:  (gth edit.val.i.prior den)  `state             ::  - ignore old updates
+      ?~  stop.val.i.prior
+        =/  val=flow
+          :-  `wen.san  :_  den
+          %+    lot:tock
+              rate.val.i.prior
+          [`(sub key.i.prior ~d1) `(add wen.san ~d1)]
+        :-  ~[(flow:apogee key.i.prior `val)]            ::  - add a stop date
+        state(moon (put:tick moon key.i.prior val))
+        ::
+      =/  val=flow
+        :-  `wen.san  :_  den
+        %+    lot:tock
+            rate.val.i.prior
+        [`(sub key.i.prior ~d1) `(add wen.san ~d1)]
+      =/  nu-spot=(set time)                             ::  - out damned spot
+        %-  sy
+        %+  murn  ~(tap in spot)
+        |=  t=@da
+        ?:(&((lte key.i.prior t) (lte t wen.san)) ~ `t)
+        ::
+      ?:  =(spot nu-spot)                                ::  - adjust a stop date
+        :-  ~[(flow:apogee key.i.prior `val)]
+        state(moon (put:tick moon key.i.prior val))
+        ::
+      :-  :~  (spot:apogee spot nu-spot)                 ::  - adjust spotting
+              (flow:apogee key.i.prior `val) 
+          ==
+      %=  state
+        spot  nu-spot
+        moon  (put:tick moon key.i.prior val)
+      ==
+    ::
+        %rate                                            ::  handle add/del rate report
+      =.  wen.san  (sub wen.san (mod wen.san ~d1))       ::  always midnight, sis
+      =+  tock=(lunar rate)
+      ?~  prior=(tab:tick moon `wen.san 1)
+        =/  rote=tape
+          =+  d=(yore wen.san)
+          "{(scow %ud m.d)}/{(scow %ud d.t.d)}/{(scow %ud y.d)}"
+        =-  [~[(note:apogee -)] state]                   ::  - fail gracefully (add rate x1)
+        =,  enjs:format
+        :_  (frond need-flow-start+(sect wen.san))
+        """
+        There is no known period to contain your flow report.
+        We need a period starting before {rote} to which we can apply this.
+        """
+        ::
+      ?~  how.san
+        ?~  got=(get:tock rate.val.i.prior wen.san)
+          =/  rote=tape
+            =+  d=(yore wen.san)
+            "{(scow %ud m.d)}/{(scow %ud d.t.d)}/{(scow %ud y.d)}"
+          =-  [~[(note:apogee -)] state]                 ::  - fail gracefully (del rate)
+          =,  enjs:format
+          :_  (frond rate-doesnt-exist+(sect wen.san))
+          """
+          Could not remove the rate report from {rote}.
+          No record existed for that day.
+          """
+          ::
+        =/  val=flow
+          :+  stop.val.i.prior
+            +:(del:tock rate.val.i.prior wen.san)
+          edit.val.i.prior
+        :-  ~[(flow:apogee key.i.prior `val)]            ::  - delete a rate report
+        state(moon (put:tick moon key.i.prior val))
+        ::
+      ?~  stop.val.i.prior
+        =/  val=flow
+          :+  stop.val.i.prior
+            (put:tock rate.val.i.prior wen.san u.how.san)
+          edit.val.i.prior
+        :-  ~[(flow:apogee key.i.prior `val)]            ::  - add a rate report
+        state(moon (put:tick moon key.i.prior val))
+        ::
+      ?:  (lte u.stop.val.i.prior wen.san)
+        =/  val=flow
+          :+  stop.val.i.prior
+            (put:tock rate.val.i.prior wen.san u.how.san)
+          edit.val.i.prior
+        :-  ~[(flow:apogee key.i.prior `val)]            ::  - add a rate report (post facto)
+        state(moon (put:tick moon key.i.prior val))
+        ::
+      =/  rote=tape
+        =+  d=(yore wen.san)
+        "{(scow %ud m.d)}/{(scow %ud d.t.d)}/{(scow %ud y.d)}"
+      =/  start=tape
+        =+  d=(yore key.i.prior)
+        "{(scow %ud m.d)}/{(scow %ud d.t.d)}/{(scow %ud y.d)}"
+      =/  stopt=tape
+        =+  d=(yore u.stop.val.i.prior)
+        "{(scow %ud m.d)}/{(scow %ud d.t.d)}/{(scow %ud y.d)}"
+      =-  [~[(note:apogee -)] state]                     ::  - fail gracefully (add rate x2)
+      =,  enjs:format
+      :_  %-  frond
+          :-  %rate-outside-flow
+          a+~[(sect key.i.prior) (sect u.stop.val.i.prior)]
+      """
+      Your rate report for {rote} was for outside the recorded period for that time.
+      We recorded your period starting on {start} and ending on {stopt}.
+      """
+    ::
+        %spot                                            ::  handle spotting
+      =.  wen.san  (sub wen.san (mod wen.san ~d1))       ::  always midnight, sis
+      ?:  (~(has in spot) wen.san)
+        =+  nu-spot=(~(del in spot) wen.san)
+        ?:  =(spot nu-spot)  `state
+        :_  state(spot nu-spot)                          ::  - del spotting
+        ~[(spot:apogee spot nu-spot)]
+        ::
+      ?~  prior=(tab:tick moon `wen.san 1)
+        =/  stahp=tape
+          =+  d=(yore wen.san)
+          "{(scow %ud m.d)}/{(scow %ud d.t.d)}/{(scow %ud y.d)}"
+        =-  [~[(note:apogee -)] state]                   ::  - fail gracefully (spot x1)
+        =,  enjs:format
+        :_  (frond need-prior-flow+(sect wen.san))
+        """
+        There is no known cyle to contain your spotting report.
+        Enter a period starting and stopping before {stahp} to continue.
+        """
+      ?~  stop.val.i.prior
+        =/  stahp=tape
+          =+  d=(yore wen.san)
+          "{(scow %ud m.d)}/{(scow %ud d.t.d)}/{(scow %ud y.d)}"
+        =/  start=tape
+          =+  d=(yore key.i.prior)
+          "{(scow %ud m.d)}/{(scow %ud d.t.d)}/{(scow %ud y.d)}"
+        =-  [~[(note:apogee -)] state]                   ::  - fail gracefully (spot x2)
+        =,  enjs:format
+        :_  (frond need-flow-stop+(sect key.i.prior))
+        """
+        The cycle which would include spotting on {stahp} has no stop date.
+        We need to know when your period starting on {start} stopped to continue.
+        """
+      ?:  (lth u.stop.val.i.prior wen.san)
+        =+  nu-spot=(~(put in spot) wen.san)
+        :_  state(spot nu-spot)                          ::  - add spotting
+        ~[(spot:apogee spot nu-spot)]
+      =/  stahp=tape
+        =+  d=(yore wen.san)
+        "{(scow %ud m.d)}/{(scow %ud d.t.d)}/{(scow %ud y.d)}"
+      =/  start=tape
+        =+  d=(yore key.i.prior)
+        "{(scow %ud m.d)}/{(scow %ud d.t.d)}/{(scow %ud y.d)}"
+      =/  stopt=tape
+        =+  d=(yore u.stop.val.i.prior)
+        "{(scow %ud m.d)}/{(scow %ud d.t.d)}/{(scow %ud y.d)}"
+      =-  [~[(note:apogee -)] state]                     ::  - fail gracefully (spot x3)
+      =,  enjs:format
+      :_  %-  frond
+          :-  %spot-inside-flow
+          a+~[(sect key.i.prior) (sect u.stop.val.i.prior)]
+      """
+      The period recorded between {start} and {stopt} would include {stahp}.
+      Adjust the end time for that period to continue.
+      """
     ==
   ++  vivre
     |=  [pys=physical den=time]

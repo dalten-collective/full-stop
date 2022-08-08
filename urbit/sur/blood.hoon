@@ -12,7 +12,7 @@
       pregnant
   ==
 +$  pregnant
-  $%  [%bear wen=time]                                   ::  (un)set prengancy (week count per last period)
+  $%  [%bear ~]                                          ::  (un)set prengancy (week count per last period)
       [%move wen=time due=?]                             ::  adjust week count by due date or start date
   ==
 +$  election
@@ -21,9 +21,9 @@
   ==
 ::
 +$  sanguine
-  $%  [%flow wen=time wix=time]                          ::  note menstruation start
-      [%stop wen=time wix=time]                          ::  note menstruation stop
-      [%rate how=(unit rate) wen=time wix=time]          ::  note flow rate
+  $%  [%flow wen=time]                                   ::  note menstruation start
+      [%stop wen=time]                                   ::  note menstruation stop
+      [%rate how=(unit rate) wen=time]                   ::  note flow rate
       [%spot ? wen=time]                                 ::  note spotting
   ==
 ::
