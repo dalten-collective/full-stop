@@ -4,8 +4,8 @@
 /+  default-agent, dbug, agentio
 ::
 |%
-++  lunar  |$([a] ((on time a) gth))
-++  cycle  |$([a] ((mop time a) gth))
+++  lunar  |$([a] ((on time a) gth))                     ::  mop handling core
+++  cycle  |$([a] ((mop time a) gth))                    ::  mop type constructor
 ::
 +$  versioned-state  $%(state-0)
 +$  state-0
@@ -14,7 +14,7 @@
       =spot                                              ::  spotting
       =rain                                              ::  mucosal discharge
       =fire                                              ::  basal body temp
-      =mate                                              ::  unprotected sex
+      =mate                                              ::  sexual encounters
       =bear                                              ::  pregnancy
       =hold                                              ::  birth control
       =opts                                              ::  system options
@@ -31,16 +31,16 @@
 +$  rain  (cycle [p=cons edit=time])                     ::  track cervical mucousal viscocity
 +$  fire  (cycle [p=base edit=time])                     ::  track basal body temperature
 +$  mate  (set [p=time q=(unit @t) r=?])                 ::  track sexual encounters with optional details
-+$  bear  (unit star=time week=@ud edit=time)            ::  track pregnancy
++$  bear  (unit [star=time edit=time])                   ::  track pregnancy
 +$  opts  [noti=? fert=? edit=time]                      ::  options - notifications and fertility predictions
 +$  hold
- %-  unit
- $:  $=  type
-     $%  [%pill h=@ud m=@ud am=? miss=(set time)]       ::  track hormonal pill b.c., record missed pills
-         [%term wen=time]                               ::  track implant/term b.c., record replacement date
-     ==
-     edit=time
- ==
+  %-  unit
+  $:  $=  type
+      $%  [%pill h=@ud m=@ud am=? miss=(set time)]       ::  track hormonal pill b.c., record missed pills
+          [%term wen=time again=time]                    ::  track implant/term b.c., record replacement date
+      ==
+      edit=time
+  ==
 ::
 +$  card  card:agent:gall
 --  
@@ -76,7 +76,7 @@
     ^-  (quip card _this)
     ?.  =(%dot-point mark)  (on-poke:def mark vase)
     =^  cards  state
-      (syzygy (flop !<(drop vase)))                      ::  handle updates in reverse order
+      (syzygy:hc (flop !<(drop vase)))                   ::  handle updates in reverse order
     [cards this]
   ++  on-arvo
     |=  [=wire sign=sign-arvo]
@@ -88,24 +88,102 @@
       %.  `this
       (slog '%full-stop -failed-binding-eyre' ~)
     ==
-  ++  on-peek   on-peek:def
+  ++  on-watch                                           ::  subscription handling
+    |=  pat=path
+    ?>  =(our.bowl src.bowl)
+    ?.  =([%website ~] pat)  (on-watch:def pat)
+    :_  this
+    :_  ~
+    %-  send:apogee:hc
+    %-  pairs:enjs:format
+    :~  moon+(moon:give:apogee:hc [%each ~])
+        spot+spot:give:apogee:hc
+        rain+rain:give:apogee:hc
+        fire+fire:give:apogee:hc
+        mate+mate:give:apogee:hc
+        bear+bear:give:apogee:hc
+        hold+hold:give:apogee:hc
+        opts+opts:give:apogee:hc
+    ==
+  ++  on-peek                                            ::  scry handling
+    |=  pat=path
+    ^-  (unit (unit cage))
+    ?+    pat  (on-peek:def pat)
+        [%x %all ~]                                      ::  - get front-end startup data
+      :+  ~  ~
+      =-  json+!>(`json`-)
+      %-  pairs:enjs:format
+      :~  moon+(moon:give:apogee:hc [%each ~])
+          spot+spot:give:apogee:hc
+          rain+rain:give:apogee:hc
+          fire+fire:give:apogee:hc
+          mate+mate:give:apogee:hc
+          bear+bear:give:apogee:hc
+          hold+hold:give:apogee:hc
+          opts+opts:give:apogee:hc
+      ==
+    ::
+        [%x %moon *]                                     ::  - get moon data
+      ?.  ?=  $?  [%each ~]
+                  [%just @ ~]
+                  [%some @ @ ~]
+              ==
+          +>.pat
+        !!
+      ``json+!>(`json`(moon:give:apogee:hc +>.pat))
+    ::
+        [%x %spot ~]
+      ``json+!>(`json`spot:give:apogee:hc)
+    ::
+        [%x %rain ~]
+      ``json+!>(`json`rain:give:apogee:hc)
+    ::
+        [%x %fire ~]
+      ``json+!>(`json`fire:give:apogee:hc)
+    ::
+        [%x %mate ~]
+      ``json+!>(`json`mate:give:apogee:hc)
+    ::
+        [%x %bear ~]
+      ``json+!>(`json`bear:give:apogee:hc)
+    ::
+        [%x %hold ~]
+      ``json+!>(`json`hold:give:apogee:hc)
+    ::
+        [%x %opts ~]
+      ``json+!>(`json`opts:give:apogee:hc)
+    ::
+        [%x %next ~]
+      ``json+!>(`json`next:give:apogee:hc)
+    ::
+    ==
   ++  on-fail   on-fail:def
   ++  on-agent  on-agent:def
-  ++  on-watch  on-watch:def
   ++  on-leave  on-leave:def
   --
 |_  bol=bowl:gall
 ++  apogee                                               :: json output
   =,  enjs:format
   |%
+  ++  note                                               ::  - send error message
+    |=  [m=^tape j=json]
+    (send (pairs ~[message+s+(crip m) error+j]))
+  ::
   ++  send                                               ::  - send card
     |=  jon=json
     ^-  card
     [%give %fact ~[/website] json+!>(jon)]
   ::
-  ++  note                                               ::  - send error message
-    |=  [m=^tape j=json]
-    (send (pairs ~[message+s+(crip m) error+j]))
+  ++  spot                                               ::  - send spot diff
+    |=  [old=^^spot new=^^spot]
+    ^-  card
+    =/  add=(list ^time)  ~(tap in (~(dif in new) old))
+    =/  rem=(list ^time)  ~(tap in (~(dif in old) new))
+    =;  oke=[p=json q=json]
+      (send (pairs ~[add-spots+p.oke del-spots+q.oke]))
+    =,  enjs:format
+    :-  a+(turn add |=(t=@da (sect t)))
+    a+(turn rem |=(t=@da (sect t)))
   ::
   ++  flow                                               ::  - send add/del period
     |=  [wen=^time flew=(unit ^flow)]
@@ -123,16 +201,155 @@
         |=([p=^time q=rate] a+~[(sect p) (numb q)])
     ==
   ::
-  ++  spot                                               ::  - send spot diff
-    |=  [old=^^spot new=^^spot]
-    ^-  card
-    =/  add=(list ^time)  ~(tap in (~(dif in new) old))
-    =/  rem=(list ^time)  ~(tap in (~(dif in old) new))
-    =;  oke=[p=json q=json]
-      (send (pairs ~[add-spots+p.oke del-spots+q.oke]))
-    =,  enjs:format
-    :-  a+(turn add |=(t=@da (sect t)))
-    a+(turn rem |=(t=@da (sect t)))
+  ++  give                                               ::  - send front-end startup data
+    |%
+    ++  next                                             ::    * predict next cycle
+      =+  tick=(lunar ^flow)
+      =;  what
+        ?-  -.n.what
+          %.y  (frond next+(numb:enjs:format +.n.what))
+        ::
+            %.n
+          %-  pairs
+          ~[message+s+(crip +<.n.what) error++>.n.what]
+        ==
+      ^-  [[@ (unit ^time) n=(each @ud [^tape json])] *]
+      %^    %-  dip:tick
+            $:  c=@ud
+                l=(unit ^time)
+                n=(each @ud [^tape json])
+            ==
+          ^moon
+        :^  0  *(unit ^time)  %.n
+        :_  (frond:enjs:format next-need-data+~)
+        """
+        We need more consecutive, tracked periods to predict your next period.
+        Enter some back-dated periods, if you can remember, and we'll try!
+        """  
+      |=  $:  $:  c=@ud
+                  l=(unit ^time)
+                  n=(each @ud [^tape json])
+              ==
+              [k=^time v=^flow]
+          ==
+      :: ?:  (gte c 6)  [`v %.y [6 `now.bol [%.y 28]]]
+      :: [`v %.y [6 *(unit ^time) [%.y 28]]]
+      ?:  (gte c 1)  [~ %.y c l n]
+      [~ %.n +(c) l [%.y 28]]
+    ++  moon                                             ::    * send cycle information
+      |=  wat=?([%each ~] [%some @ @ ~] [%just @ ~])
+      ^-  json
+      ?~  ^moon  ~
+      =+  tick=(lunar ^flow)
+      =+  tock=(lunar rate)
+      =/  luna=(cycle ^flow)
+        ?-  wat
+          [%each ~]  ^moon
+        ::
+            [%just @ ~]
+          =+  wen=(slav %da +<.wat)
+          %+  gas:tick  ~
+          ~[[wen (got:tick ^moon wen)]]
+        ::
+            [%some @ @ ~]
+          %^    lot:tick
+              ^moon
+            `(sub (slav %da +>-.wat) ~d1)
+          `(sub (slav %da +<.wat) ~d1)
+        ==
+      :-  %a
+      %+  turn  (bap:tick ^moon)
+      |=  [w=^time f=^flow]
+      %-  pairs
+      :~  start+(sect w)
+      ::
+        :-  %flow
+        %-  pairs
+        :~  stop+?~(stop.f ~ (sect u.stop.f))
+            edit+(sect edit.f)
+        ::
+          :+  %rate  %a
+          ^-  (list json)
+          %+  turn  (bap:tock rate.f)
+          |=([p=^time q=rate] a+~[(sect p) (numb q)])
+        ==
+      ==
+    ++  spot                                             ::    * send spotting dates
+      ^-  json
+      ?.  =(~ spot.state)  ~
+      :-  %a
+      (turn ~(tap in spot.state) |=(wen=^time (sect wen)))
+    ++  rain                                             ::    * send mucosal consistencies
+      ^-  json
+      =+  tick=(lunar ,[p=cons edit=^time])
+      ?~  ^rain  ~
+      :-  %a
+      %+  turn  (bap:tick ^rain)
+      |=  [wen=^time how=cons edit=^time]
+      %-  pairs
+      :~  when+(sect wen)
+          what+(numb how)
+          edit+(sect edit)
+      ==
+    ++  fire                                             ::    * send basal body temps
+      ^-  json
+      =+  tick=(lunar ,[p=base edit=^time])
+      ?~  ^fire  ~
+      :-  %a
+      %+  turn  (bap:tick ^fire)
+      |=  [wen=^time how=base edit=^time]
+      %-  pairs
+      :~  when+(sect wen)
+          what+s+(scot %rd how)
+          edit+(sect edit)
+      ==
+    ++  mate                                             ::    * send sexual encounters or null
+      ^-  json
+      ?:  =(~ mate.state)  ~
+      :-  %a
+      %+  turn  ~(tap in mate.state)
+      |=  [p=^time q=(unit @t) r=?]
+      %-  pairs
+      :~  when+(sect p)
+          what+?~(q ~ s+u.q)
+          with+b+r
+      ==
+    ++  bear                                             ::    * send pregnancy or null
+      ^-  json
+      ?~  barr=^bear  ~
+      %-  pairs
+      :~  start+(sect star.u.barr)
+          weeks+(numb (div (sub now.bol star.u.barr) ~d7))
+          edit+(sect edit.u.barr)
+      ==
+    ++  hold                                             ::    * send b.c. or null
+      ^-  json
+      ?~  held=^hold  ~
+      ?-    -.type.u.held
+          %pill
+        %-  pairs
+        :~  type+s+'pill'
+            hour+(numb h.type.u.held)
+            mins+(numb m.type.u.held)
+            edit+(sect edit.u.held)
+        ==
+      ::
+          %term
+        %-  pairs
+        :~  type+s+'term'
+            when+(sect wen.type.u.held)
+            again+(sect again.type.u.held)
+            edit+(sect edit.u.held)
+        ==
+      ==
+    ++  opts                                             ::    * send options
+      ^-  json
+      %-  pairs
+      :~  noti+b+noti.^opts
+          fert+b+fert.^opts
+          edit+(sect edit.^opts)
+      ==
+    --
   --
 ++  syzygy                                               :: input handler
   |=  =drop
@@ -211,7 +428,7 @@
           :-  `wen.san  :_  den
           %+    lot:tock
               rate.val.i.prior
-          [`(sub key.i.prior ~d1) `(add wen.san ~d1)]
+          [`(add wen.san ~d1) `(sub key.i.prior ~d1)]
         :-  ~[(flow:apogee key.i.prior `val)]            ::  - add a stop date
         state(moon (put:tick moon key.i.prior val))
         ::
@@ -219,7 +436,7 @@
         :-  `wen.san  :_  den
         %+    lot:tock
             rate.val.i.prior
-        [`(sub key.i.prior ~d1) `(add wen.san ~d1)]
+        [`(add wen.san ~d1) `(sub key.i.prior ~d1)]
       =/  nu-spot=(set time)                             ::  - out damned spot
         %-  sy
         %+  murn  ~(tap in spot)
@@ -281,7 +498,7 @@
         :-  ~[(flow:apogee key.i.prior `val)]            ::  - add a rate report
         state(moon (put:tick moon key.i.prior val))
         ::
-      ?:  (lte u.stop.val.i.prior wen.san)
+      ?:  (lte wen.san u.stop.val.i.prior)
         =/  val=flow
           :+  stop.val.i.prior
             (put:tock rate.val.i.prior wen.san u.how.san)
