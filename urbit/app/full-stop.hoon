@@ -121,6 +121,7 @@
           bear+bear:give:apogee:hc
           hold+hold:give:apogee:hc
           opts+opts:give:apogee:hc
+          next+next:give:apogee:hc
       ==
     ::
         [%x %moon *]                                     ::  - get moon data
@@ -203,39 +204,74 @@
   ::
   ++  give                                               ::  - send front-end startup data
     |%
+    +$  calm                                             ::    * calm
+      $:  c=@ud                                          ::      - count
+          a=(list @ud)                                   ::      - average (running list)
+          l=(unit ^time)                                 ::      - last (or none)
+          m=(each @ud [^tape json])                      ::      - next or error (n->m for +1 to calm)
+      ==
     ++  next                                             ::    * predict next cycle
+      ::
+      ::  next's logic is sorta complex, and uses a part of
+      ::  the ordered-map engine that i hadn't used before
+      ::
+      ::  method:
+      ::  - dip:tick will allow us to traverse the moon mop
+      ::  with some state
+      ::  - calm (count average last [n->m]ote) is the state
+      ::  - function returns [(unit val) ? calm]. On ?==true
+      ::    it will end operation and produce [calm _moon]
+      ::
+      ::  assumptions:
+      ::  - periods separated by 60 days or more are non-consecutive
+      ::  - we don't need 6 consecutive periods from your most
+      ::    recent, but we do need _a_ period within 45 days to 
+      ::    predict your next one, based on a prior consecutive
+      ::    six periods
+      ::  - a six month average is statistically meaningful
+      ::  - if your earnestly recorded cycle is > 45 days, on average
+      ::    we apologize for the inconvenience, but we can't
+      ::    predict it.
+      ::
       =+  tick=(lunar ^flow)
+      ?~  prior=(pry:tick ^moon)
+        =-  (pairs ~[message+s+(crip -.-) error++.-])
+        :_  (frond:enjs:format next-need-data+~)
+        """
+        We need more consecutive, tracked periods to predict your next period.
+        Enter some back-dated periods, if you can remember, and we'll try!
+        """
+        ::
       =;  what
-        ?-  -.n.what
-          %.y  (frond next+(numb:enjs:format +.n.what))
+        ?-    -.m.what
+          %.y  (frond next+(numb:enjs:format p.m.what))
         ::
             %.n
           %-  pairs
-          ~[message+s+(crip +<.n.what) error++>.n.what]
+          ~[message+s+(crip -.p.m.what) error++.p.m.what]
         ==
-      ^-  [[@ (unit ^time) n=(each @ud [^tape json])] *]
-      %^    %-  dip:tick
-            $:  c=@ud
-                l=(unit ^time)
-                n=(each @ud [^tape json])
-            ==
+      ^-  [calm *]
+      %^    (dip:tick calm)
           ^moon
-        :^  0  *(unit ^time)  %.n
+        =-  [0 ~ ~ [%.n -]]
         :_  (frond:enjs:format next-need-data+~)
         """
         We need more consecutive, tracked periods to predict your next period.
         Enter some back-dated periods, if you can remember, and we'll try!
         """  
-      |=  $:  $:  c=@ud
-                  l=(unit ^time)
-                  n=(each @ud [^tape json])
-              ==
+      |=  $:  calm
               [k=^time v=^flow]
           ==
-      :: ?:  (gte c 6)  [`v %.y [6 `now.bol [%.y 28]]]
-      :: [`v %.y [6 *(unit ^time) [%.y 28]]]
-      ?:  (gte c 1)  [~ %.y c l n]
-      [~ %.n +(c) l [%.y 28]]
+      ^-  [(unit ^flow) ? calm]
+      ?:  (gte c 8)  [`v %.y c a l m]                    ::  < if count = 8, present the avg
+      ?~  l
+        [`v %.n +(c) a `k m]                             ::  < if it's our first date, set +(c)a`km
+      =+  cyc=`@ud`(div (sub u.l k) ~d1)
+      ?:  (gte cyc 60)  [`v %.n 0 ~ `k m]                ::  < if purported cycle > 60 days, ignore, start over
+      ?:  (gte c 7)
+        =-  [`v %.y +(c) a `k -]                         ::  < if purported cycle < 60 days, set +(c)[cyc a]`k[%.y avg]
+        [%.y (div (roll a add) (lent a))]
+      [`v %.n +(c) [cyc a] `k m]                         ::  < else, +(c)[cyc a]`km
     ++  moon                                             ::    * send cycle information
       |=  wat=?([%each ~] [%some @ @ ~] [%just @ ~])
       ^-  json
@@ -458,7 +494,11 @@
         %rate                                            ::  handle add/del rate report
       =.  wen.san  (sub wen.san (mod wen.san ~d1))       ::  always midnight, sis
       =+  tock=(lunar rate)
-      ?~  prior=(tab:tick moon `wen.san 1)
+      =/  prior=(list [key=time val=flow])
+        ?~  p=(get:tick moon wen.san)
+          (tab:tick moon `wen.san 1)
+        ~[[wen.san u.p]]
+      ?~  prior
         =/  rote=tape
           =+  d=(yore wen.san)
           "{(scow %ud m.d)}/{(scow %ud d.t.d)}/{(scow %ud y.d)}"
