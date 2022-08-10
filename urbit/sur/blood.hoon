@@ -28,8 +28,8 @@
   ==
 ::
 +$  physical
-  $%  [%temp =base wen=time]                             ::  note basal body temp for some day
-      [%muco =cons wen=time]                             ::  note cervical mucosal consistency
+  $%  [%temp baz=(unit base) wen=time]                   ::  note basal body temp for some day
+      [%muco con=(unit cons) wen=time]                   ::  note cervical mucosal consistency
   ==
 ::
 +$  sanguine

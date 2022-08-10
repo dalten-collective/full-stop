@@ -58,27 +58,33 @@
       hc    ~(. +> bowl)
       io    ~(. agentio bowl)
       pass  pass:io
-  ++  on-init
+  ++  on-init                                            ::  install handling
     ^-  (quip card _this)
     %-  (slog '%full-stop -online' ~)
     :_  this(state [%0 ~ ~ ~ ~ ~ ~ ~ [%.n %.n now.bowl]])
     ~[(~(connect pass /eyre) [~ /apps/full-stop/knife] %full-stop)]
-  ++  on-save
+  ::
+  ++  on-save                                            ::  save handling
     ^-  vase
     !>(state)
-  ++  on-load
+  ::
+  ++  on-load                                            ::  load handling
     |=  ole=vase
     ^-  (quip card _this)
     =/  old=state-0  !<(state-0 ole)
     `this(state old)
-  ++  on-poke
+  ::
+  ++  on-poke                                            ::  poke handling
     |=  [=mark =vase]
     ^-  (quip card _this)
     ?.  =(%dot-point mark)  (on-poke:def mark vase)
     =^  cards  state
-      (syzygy:hc (flop !<(drop vase)))                   ::  handle updates in reverse order
+      %-  syzygy:hc                                      ::  - respect elders
+      %+  sort  !<(drop vase)
+      |=([a=[* t=time] b=[* t=time]] (lte t.a t.b))
     [cards this]
-  ++  on-arvo
+  ::
+  ++  on-arvo                                            :: eyre/behn handling
     |=  [=wire sign=sign-arvo]
     ^-  (quip card _this)
     ?+    wire  (on-arvo:def wire sign)
@@ -104,6 +110,7 @@
         bear+bear:give:apogee:hc
         hold+hold:give:apogee:hc
         opts+opts:give:apogee:hc
+        next+next:give:apogee:hc
     ==
   ++  on-peek                                            ::  scry handling
     |=  pat=path
@@ -175,6 +182,17 @@
     ^-  card
     [%give %fact ~[/website] json+!>(jon)]
   ::
+  ++  muco                                               ::  - send mucosal diff
+    |=  [p=^time [q=cons r=^time] add=?]
+    ^-  card
+    ?.  add
+      (send (frond del-rain+(sect p)))
+    %-  send  %-  frond  :-  %add-rain
+    (pairs ~[when+(sect p) drip+(numb q) edit+(sect r)])
+  ::
+  :: ++  temp
+  ::   |=  [p=^time [q=base r=^time]]
+  ::
   ++  spot                                               ::  - send spot diff
     |=  [old=^^spot new=^^spot]
     ^-  card
@@ -208,8 +226,9 @@
       $:  c=@ud                                          ::      - count
           a=(list @ud)                                   ::      - average (running list)
           l=(unit ^time)                                 ::      - last (or none)
-          m=(each @ud [^tape json])                      ::      - next or error (n->m for +1 to calm)
+          m=(each @ud [^tape json])                      ::      - maybe next, maybe error
       ==
+    ::
     ++  next                                             ::    * predict next cycle
       ::
       ::  next's logic is sorta complex, and uses a part of
@@ -217,7 +236,7 @@
       ::
       ::  method:
       ::  - dip:tick will allow us to traverse the moon mop
-      ::  with some state
+      ::    with some state
       ::  - calm (count average last [n->m]ote) is the state
       ::  - function returns [(unit val) ? calm]. On ?==true
       ::    it will end operation and produce [calm _moon]
@@ -250,6 +269,7 @@
           %-  pairs
           ~[message+s+(crip -.p.m.what) error++.p.m.what]
         ==
+        ::
       ^-  [calm *]
       %^    (dip:tick calm)
           ^moon
@@ -272,6 +292,7 @@
         =-  [`v %.y +(c) a `k -]                         ::  < if purported cycle < 60 days, set +(c)[cyc a]`k[%.y avg]
         [%.y (div (roll a add) (lent a))]
       [`v %.n +(c) [cyc a] `k m]                         ::  < else, +(c)[cyc a]`km
+    ::
     ++  moon                                             ::    * send cycle information
       |=  wat=?([%each ~] [%some @ @ ~] [%just @ ~])
       ^-  json
@@ -627,8 +648,29 @@
         %temp
       `state
     ::
-        %muco
-      `state
+        %muco                                            ::  handle mucosal consistency report
+      =.  wen.pys  (sub wen.pys (mod wen.pys ~d1))       ::  always midnight, sis
+      =/  wap=tape
+        =+  d=(yore wen.pys)
+        "{(scow %ud m.d)}/{(scow %ud d.t.d)}/{(scow %ud y.d)}"
+      =+  tick=(lunar ,[p=cons e=time])
+      ?~  con=con.pys
+        ?~  gat=(get:tick rain wen.pys)
+          =-  [~[(note:apogee -)] state]                 ::  - fail gracefully (delete)
+          =,  enjs:format
+          :_  (frond muco-fail-delete+(sect wen.pys))
+          "We couldn't find a report on {wap} to delete."
+          ::
+        :-  ~[(muco:apogee wen.pys u.gat %.n)]           ::  - delete muco report
+        state(rain +:(del:tick rain wen.pys))
+      ?~  gat=(get:tick rain wen.pys)
+        :-  ~[(muco:apogee wen.pys [u.con.pys den] %.y)] ::  - add new muco report
+        %=  state
+          rain  (put:tick rain wen.pys [u.con.pys den])
+        ==
+      ?:  (gth +.u.gat den)  `state                      ::  - ignore old updates
+      :-  ~[(muco:apogee wen.pys [u.con.pys den] %.y)]   ::  - change a muco report
+      state(rain (put:tick rain wen.pys [u.con.pys den]))
     ==
   ++  petit
     |=  [pag=pregnant den=time]
