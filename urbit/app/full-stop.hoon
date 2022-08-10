@@ -190,8 +190,13 @@
     %-  send  %-  frond  :-  %add-rain
     (pairs ~[when+(sect p) drip+(numb q) edit+(sect r)])
   ::
-  :: ++  temp
-  ::   |=  [p=^time [q=base r=^time]]
+  ++  temp                                               ::  - send basal temp diff
+    |=  [p=^time [q=base r=^time] add=?]
+    ^-  card
+    ?.  add
+      (send (frond del-fire+(sect p)))
+    %-  send  %-  frond  :-  %add-fire  %-  pairs
+    ~[when+(sect p) heat+s+(scot %rd q) edit+(sect r)]
   ::
   ++  spot                                               ::  - send spot diff
     |=  [old=^^spot new=^^spot]
@@ -646,14 +651,32 @@
     |=  [pys=physical den=time]
     ?-    -.pys
         %temp
-      `state
+      =.  wen.pys  (sub wen.pys (mod wen.pys ~d1))       ::  always midnight, sis
+      =+  tick=(lunar ,[p=base edit=time])
+      =/  hot=tape
+        =+  d=(yore wen.pys)
+        "{(scow %ud m.d)}/{(scow %ud d.t.d)}/{(scow %ud y.d)}"
+      ?~  baz=baz.pys
+        ?~  gat=(get:tick fire wen.pys)
+          =-  [~[(note:apogee -)] state]                 ::  - fail gracefully (delete)
+          =,  enjs:format
+          :_  (frond muco-fail-delete+(sect wen.pys))
+          "We couldn't find a report on {hot} to delete."
+        :-  ~[(temp:apogee wen.pys u.gat %.n)]           ::  - delete temp report
+        state(fire +:(del:tick fire wen.pys))
+      ?~  gat=(get:tick fire wen.pys)
+        :-  ~[(temp:apogee wen.pys [u.baz den] %.y)]     ::  - add new temp report
+        state(fire (put:tick fire wen.pys [u.baz den]))
+      ?:  (gth edit.u.gat den)  `state                   ::  - ignore old updates
+      :-  ~[(temp:apogee wen.pys [u.baz den] %.y)]       ::  - change temp report
+      state(fire (put:tick fire wen.pys [u.baz den]))
     ::
         %muco                                            ::  handle mucosal consistency report
       =.  wen.pys  (sub wen.pys (mod wen.pys ~d1))       ::  always midnight, sis
+      =+  tick=(lunar ,[p=cons edit=time])
       =/  wap=tape
         =+  d=(yore wen.pys)
         "{(scow %ud m.d)}/{(scow %ud d.t.d)}/{(scow %ud y.d)}"
-      =+  tick=(lunar ,[p=cons e=time])
       ?~  con=con.pys
         ?~  gat=(get:tick rain wen.pys)
           =-  [~[(note:apogee -)] state]                 ::  - fail gracefully (delete)
@@ -668,8 +691,8 @@
         %=  state
           rain  (put:tick rain wen.pys [u.con.pys den])
         ==
-      ?:  (gth +.u.gat den)  `state                      ::  - ignore old updates
-      :-  ~[(muco:apogee wen.pys [u.con.pys den] %.y)]   ::  - change a muco report
+      ?:  (gth edit.u.gat den)  `state                   ::  - ignore old updates
+      :-  ~[(muco:apogee wen.pys [u.con.pys den] %.y)]   ::  - change muco report
       state(rain (put:tick rain wen.pys [u.con.pys den]))
     ==
   ++  petit
