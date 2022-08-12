@@ -2,7 +2,8 @@
 ::
 |%
 ::
-+$  drop  (list [act=activity wen=time])
++$  drop  (list [wen=time act=activity])
+::  json: [{ wen: <edit>, flow: {wen: <action date>} }]
 ::
 +$  activity
   $%  sanguine
