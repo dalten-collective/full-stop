@@ -81,7 +81,7 @@
     ^-  (quip card _this)
     %-  (slog '%full-stop -online' ~)
     :_  this(state [%0 ~ ~ ~ ~ ~ ~ ~ [%.n %.n now.bowl]])
-    ~[(~(connect pass /eyre) [~ /apps/full-stop/knife] %full-stop)]
+    ~[(~(connect pass /eyre) [~ /apps/moon] %full-stop)]
   ::
   ++  on-save                                           ::  save handling
     ^-  vase
