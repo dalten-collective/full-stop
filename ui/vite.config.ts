@@ -5,10 +5,10 @@ import { urbitPlugin } from '@urbit/vite-plugin-urbit';
 // https://vitejs.dev/config/
 export default ({ mode }) => {
   Object.assign(process.env, loadEnv(mode, process.cwd()));
-  const SHIP_URL = process.env.SHIP_URL || process.env.VITE_SHIP_URL || 'http://localhost:8080';
+  const SHIP_URL = process.env.SHIP_URL || process.env.VITE_SHIP_URL || 'http://localhost:80';
   console.log(SHIP_URL);
 
   return defineConfig({
-    plugins: [urbitPlugin({ base: 'moon', target: SHIP_URL, secure: false }), reactRefresh()]
+    plugins: [urbitPlugin({ base: 'full-stop', target: SHIP_URL, secure: false }), reactRefresh()]
   });
 };

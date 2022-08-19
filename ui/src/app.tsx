@@ -10,24 +10,20 @@ api.ship = window.ship;
 export function App() {
   const [subscription, setSub] = useState();
 
-  useEffect(() => {
-    async function init() {
-      // api.subscribe({
-      //   app: "full-stop",
-      //   path: "/website",
-      //   handler: (event) => {
-      //     console.log(event)
-      //   }
-      // })
-      let fuck = await api.scry({
-        app: "full-stop",
-        path: "/all",
-      })
+  // useEffect(() => {
+  //   async function init() {
+  //     // api.subscribe({
+  //     //   app: "full-stop",
+  //     //   path: "/website",
+  //     //   handler: (event) => {
+  //     //     console.log(event)
+  //     //   }
+  //     // })
 
-      console.log(fuck);
-    }
-    init();
-  })
+  //     console.log(fuck);
+  //   }
+  //   init();
+  // })
 
   return (
     <main>fuck</main>
