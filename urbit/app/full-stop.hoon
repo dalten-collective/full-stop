@@ -49,7 +49,7 @@
 +$  hold
   %-  unit
   $:  $=  type
-      $%  [%pill h=@ud m=@ud am=? miss=(set time)]      ::  track hormonal pill b.c., record missed pills
+      $%  [%pill wen=time miss=(set time)]              ::  track hormonal pill b.c., record missed pills
           [%term wen=time again=time]                   ::  track implant/term b.c., record replacement date
       ==
       edit=time
@@ -567,9 +567,12 @@
           %pill
         %-  pairs
         :~  type+s+'pill'
-            hour+(numb h.type.u.held)
-            mins+(numb m.type.u.held)
+            wen+(sect wen.type.u.held)
             edit+(sect edit.u.held)
+        ::
+          :-  %miss
+          turn  ~(tap in miss.type.u.held)
+          |=()
         ==
       ::
           %term
@@ -827,6 +830,7 @@
       Adjust the end time for that period to continue.
       """
     ==
+  ::
   ++  daily-metrics
     |=  [den=time pys=physical]
     ?-    -.pys
@@ -878,13 +882,14 @@
       :-  ~[(muco:apogee wen.pys [u.con.pys den] %.y)]  ::  - change muco report
       state(rain (put:tick rain wen.pys [u.con.pys den]))
     ==
+  ::
   ++  having-a-baby
     |=  [den=time pag=pregnant]
     =+  tick=(lunar flow)
     ?-  -.pag
         %bear                                           ::  handle set pregnancy
       ?~  bear
-        ?~  start=(pry:tick moon)
+        ?~  prior=(pry:tick moon)
           =-  [~[(note:apogee -)] state]                ::  - fail gracefully (delete)
           =,  enjs:format
           :_  (frond bear-need-move+(sect now.bol))
@@ -892,17 +897,17 @@
           We were unable to set your pregnancy's start date from our records.
           Please provide us with a start date, or due date, and we'll work from that.
           """
-        ?>  (gte now.bol key.u.start)
-        :_  state(bear `[key.u.start den])              ::  - set pregnant,
+        ?>  (gte now.bol key.u.prior)
+        :_  state(bear `[key.u.prior den])              ::  - set pregnant,
         :_  ~  %-  send:apogee                          ::      start last cycle
         =,  enjs:format
         %-  pairs
-        :~  start+(sect key.u.start)
-            due+(sect (add key.u.start ~d280))
+        :~  start+(sect key.u.prior)
+            due+(sect (add key.u.prior ~d280))
             edit+(sect den)
         ::
           :-  %weeks
-          (numb (div (sub now.bol key.u.start) ~d7))
+          (numb (div (sub now.bol key.u.prior) ~d7))
         ==
       ?:  (gth edit.u.bear den)  `state                 ::  - ignore old updates
       :_  state(bear ~)                                 ::  - unset pregnancy
@@ -910,12 +915,127 @@
     ::
         %move
       =.  wen.pag  (sub wen.pag (mod wen.pag ~d1))      ::  always midnight, sis
-      ?~  prior=(pry:tick moon)
+      ?~  bear
+        ?~  prior=(pry:tick moon)
+          ::
+          ::  if you have not added a period to the app we can take any sane
+          ::  request, but will reject the following:
+          ::  - due dates that are not >= today
+          ::  - start dates that are < today
+          ::
+          ?:  due.pag
+            ?:  (gte wen.pag now.bol)
+
+              :_  state(bear `[(sub wen.pag ~d280) den])::  - set pregnant,
+              :_  ~  %-  send:apogee                    ::      start wen - 280d
+              =,  enjs:format
+              %-  pairs
+              :~  start+(sect (sub wen.pag ~d280))
+                  due+(sect wen.pag)
+                  edit+(sect den)
+              ::
+                :-  %weeks
+                (numb (div (sub wen.pag now.bol) ~d7))
+              ==
+            =-  [~[(note:apogee -)] state]              ::  - fail gracefully (set, past)
+            =,  enjs:format
+            :_  (frond move-stop-past+(sect wen.pag))
+            """
+            Our program isn't designed to set past pregnancies.
+            If you meant to set your start date, or another date please re-enter it.
+            """
+          ?:  (gte wen.pag now.bol)
+            =-  [~[(note:apogee -)] state]              ::  - fail gracefully (set, future)
+            =,  enjs:format
+            :_  (frond move-stop-future+(sect wen.pag))
+            """
+            Our program isn't designed to set future pregnancies.
+            If you meant to set your due date, or another date please re-enter it.
+            """
+          :_  state(bear `[wen.pag den])                ::  -set pregnant,
+          :_  ~  %-  send:apogee                        ::    start wen
+          =,  enjs:format
+          %-  pairs
+          :~  start+(sect wen.pag)
+              due+(sect (add wen.pag ~d280))
+              edit+(sect den)
+          ::
+            :-  %weeks
+            (numb (div (sub wen.pag now.bol) ~d7))
+          ==
+          ::
         ::
-        ::  if you have not added a period to the app we can take any sane
-        ::  request, but will reject the following:
-        ::  - due dates that are not >= today
-        ::  - start dates that are < today
+        ::  if you have added periods before,
+        ::  we need a data sanity check
+        ::
+        ?:  due.pag
+          ?.  ?&  (gte wen.pag (add key.u.prior ~d140)) ::  due date >= last period + 140
+                  (gte wen.pag now.bol)                 ::  due date >= now
+              ==
+            =/  last=tape
+              =+  d=(yore key.u.prior)
+              "{(scow %ud m.d)}/{(scow %ud d.t.d)}/{(scow %ud y.d)}"
+            =-  [~[(note:apogee -)] state]              ::  - fail gracefully (set, future)
+            =,  enjs:format
+            :_  %+  frond  %move-stop-period
+                %-  pairs
+                :~  last-period+(sect key.u.prior)
+                    due-date+(sect wen.pag)
+                ==  
+            """
+            Your due date {<last>} is within 140 days of your last recorded cycle.
+            %full-stop might have bad data. Check your recorded periods for errors.
+            If you meant to set your start date, or another date please re-enter it.
+            """
+          :_  state(bear `[(sub wen.pag ~d280) den])    ::  - set start by due date
+          :_  ~  %-  send:apogee
+          =,  enjs:format
+          %-  pairs
+          :~  start+(sect wen.pag)
+              due+(sect (add wen.pag ~d280))
+              edit+(sect den)
+          ::
+            :-  %weeks
+            (numb (div (sub wen.pag now.bol) ~d7))
+          ==
+        ?.  ?&  (gte wen.pag key.u.prior)               ::  due date >= last period + 30
+                (gte now.bol wen.pag)                   ::  due date >= now
+            ==
+          =/  last=tape
+            =+  d=(yore key.u.prior)
+            "{(scow %ud m.d)}/{(scow %ud d.t.d)}/{(scow %ud y.d)}"
+          =/  when=tape
+            =+  d=(yore wen.pag)
+            "{(scow %ud m.d)}/{(scow %ud d.t.d)}/{(scow %ud y.d)}"
+          =-  [~[(note:apogee -)] state]                ::  - fail gracefully (set, strange past)
+          =,  enjs:format
+          :_  %+  frond  %move-stop-period
+              %-  pairs
+              :~  last-period+(sect key.u.prior)
+                  start-date+(sect wen.pag)
+              ==  
+          """
+          Your start date {<when>} is before your last recorded cycle.
+          %full-stop thinks your last period started on {<last>}.
+          If you meant to set your due date, or another date please re-enter it.
+          Alternatively, delete any conflicting period reports and re-attempt.
+          """
+        :_  state(bear `[wen.pag den])                  ::  - set start date
+        :_  ~  %-  send:apogee
+        =,  enjs:format
+        %-  pairs
+        :~  start+(sect wen.pag)
+            due+(sect (add wen.pag ~d280))
+            edit+(sect den)
+        ::
+          :-  %weeks
+          (numb (div (sub wen.pag now.bol) ~d7))
+        ==
+      ::  alternate logic for users previously indicating pregnancy
+      ::
+      ?.  (gth den edit.u.bear)  `state                 ::  ignore old updates
+      ?~  prior=(pry:tick moon)
+        ::  no prior periods
         ::
         ?:  due.pag
           ?:  (gte wen.pag now.bol)
@@ -938,7 +1058,7 @@
           Our program isn't designed to set past pregnancies.
           If you meant to set your start date, or another date please re-enter it.
           """
-        ?:  (gte wen.pag now.bol)
+        ?:  (gth wen.pag now.bol)
           =-  [~[(note:apogee -)] state]                ::  - fail gracefully (set, future)
           =,  enjs:format
           :_  (frond move-stop-future+(sect wen.pag))
@@ -957,19 +1077,14 @@
           :-  %weeks
           (numb (div (sub wen.pag now.bol) ~d7))
         ==
-        ::
-      ::
-      ::  if you have added periods before,
-      ::  we need a data sanity check
-      ::
       ?:  due.pag
-        ?.  ?&  (gte wen.pag (add key.u.prior ~d140))   ::  due date >= last period + 140
-                (gte wen.pag now.bol)                   ::  due date >= now
+        ?.  ?&  (gte wen.pag (add key.u.prior ~d140)) ::  due date >= last period + 140
+                (gte wen.pag now.bol)                 ::  due date >= now
             ==
           =/  last=tape
             =+  d=(yore key.u.prior)
             "{(scow %ud m.d)}/{(scow %ud d.t.d)}/{(scow %ud y.d)}"
-          =-  [~[(note:apogee -)] state]                ::  - fail gracefully (set, future)
+          =-  [~[(note:apogee -)] state]              ::  - fail gracefully (set, future)
           =,  enjs:format
           :_  %+  frond  %move-stop-period
               %-  pairs
@@ -978,10 +1093,10 @@
               ==  
           """
           Your due date {<last>} is within 140 days of your last recorded cycle.
-          We think our data might be bad, or we're simply confused.
+          %full-stop might have bad data. Check your recorded periods for errors.
           If you meant to set your start date, or another date please re-enter it.
           """
-        :_  state(bear `[(sub wen.pag ~d280) den])      ::  - set start by due date
+        :_  state(bear `[(sub wen.pag ~d280) den])    ::  - set start by due date
         :_  ~  %-  send:apogee
         =,  enjs:format
         %-  pairs
@@ -992,8 +1107,8 @@
           :-  %weeks
           (numb (div (sub wen.pag now.bol) ~d7))
         ==
-      ?.  ?&  (gte wen.pag key.u.prior)                 ::  due date >= last period + 30
-              (gte now.bol wen.pag)                     ::  due date >= now
+      ?.  ?&  (gte wen.pag key.u.prior)               ::  due date >= last period + 30
+              (gte now.bol wen.pag)                   ::  due date >= now
           ==
         =/  last=tape
           =+  d=(yore key.u.prior)
@@ -1001,7 +1116,7 @@
         =/  when=tape
           =+  d=(yore wen.pag)
           "{(scow %ud m.d)}/{(scow %ud d.t.d)}/{(scow %ud y.d)}"
-        =-  [~[(note:apogee -)] state]                  ::  - fail gracefully (set, strange past)
+        =-  [~[(note:apogee -)] state]                ::  - fail gracefully (set, strange past)
         =,  enjs:format
         :_  %+  frond  %move-stop-period
             %-  pairs
@@ -1009,11 +1124,12 @@
                 start-date+(sect wen.pag)
             ==  
         """
-        Your start date {<when>} before your last recorded cycle.
-        We have your last period as starting on {<last>}.
+        Your start date {<when>} is before your last recorded cycle.
+        %full-stop thinks your last period started on {<last>}.
         If you meant to set your due date, or another date please re-enter it.
+        Alternatively, delete any conflicting period reports and re-attempt.
         """
-      :_  state(bear `[wen.pag den])                    ::  - set start date
+      :_  state(bear `[wen.pag den])                  ::  - set start date
       :_  ~  %-  send:apogee
       =,  enjs:format
       %-  pairs
@@ -1025,12 +1141,51 @@
         (numb (div (sub wen.pag now.bol) ~d7))
       ==
     ==
+  ::
   ++  birth-control
     |=  [den=time con=controls]
-    `state
+    ?~  hold
+      ?+    -.con  `state
+          %pill
+        =/  last=[h=@ud m=@ud am=?]                     ::  almost always midnight, sis
+          =+  d=(yore key.u.prior)
+          [h.t.d m.t.d (gte h.t.d 12)]
+        :_  =-  state(hold -)                           ::  - set taking b.c. pill
+            `[[%pill h.last m.last am.last ~] den]
+        =-  (send:apogee (frond:enjs:format hold+-))
+        %+  frond:enjs:format  %pill
+        %-  pairs:enjs:format
+        :~  hour+(numb:enjs:format h.last)
+            min+(numb:enjs:format m.last)
+            am+b+am.last
+            miss+~
+            edit+(sect den)
+        ==
+      ==
+    ?-    -.con
+        %free
+      ?~  hold
+        :_  state
+        (send:apogee (frond:enjs:format hold+~))
+      ?.  (gth den edit.u.hold)  `state
+      :_  state
+      (send:apogee (frond:enjs:format hold+~))
+    ::
+        %miss
+      ?~
+      `state
+    ::
+        %pill
+      `state
+    ::
+        %term
+      `state
+    ==
+  ::
   ++  configuration
     |=  [den=time opt=election]
     `state
+  ::
   ++  getting-it-on
     |=  [den=time sex=relation]
     `state
