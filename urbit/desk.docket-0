@@ -2,7 +2,8 @@
   title+'Full Stop'
   info+'A Period Tracker'
   color+0x7f.0002
-  site+/apps/moon
+  base+'full-stop'
+  glob-http+['https://bootstrap.urbit.org/glob-0v5.hurm4.ejod5.ngg9h.iub9i.n1j7o.glob' 0v5.hurm4.ejod5.ngg9h.iub9i.n1j7o]
   version+[0 0 1]
   license+'REKT'
   website+'https://www.quartus.co'
