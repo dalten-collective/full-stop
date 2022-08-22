@@ -4,6 +4,7 @@
 ::
 |%
 ++  from-json
+  ~>  %bout.[0 'from-json:/lib/full-stop']
   %-  ar:dejs:format
   |=  j=json
   =,  dejs:format

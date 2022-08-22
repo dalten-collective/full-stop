@@ -1,4 +1,4 @@
-::  fullstop.
+::  full-stop.
 ::
 /-  *blood
 /+  default-agent, dbug, agentio
@@ -79,9 +79,10 @@
       pass  pass:io
   ++  on-init                                           ::  install handling
     ^-  (quip card _this)
-    %-  (slog '%fullstop -online' ~)
-    `this(state [%0 ~ ~ ~ ~ ~ ~ ~ [%.n %.n now.bowl]])
-    ::~[(~(connect pass /eyre) [~ /apps/moon] %fullstop)]
+    ~>  %bout.[0 '%full-stop +on-init']
+    %-  (slog '%full-stop -online' ~)
+    :_  this(state [%0 ~ ~ ~ ~ ~ ~ ~ [%.n %.n now.bowl]])
+    ~[(~(connect pass /eyre) [~ /apps/moon] %full-stop)]
   ::
   ++  on-save                                           ::  save handling
     ^-  vase
@@ -90,12 +91,14 @@
   ++  on-load                                           ::  load handling
     |=  ole=vase
     ^-  (quip card _this)
+    ~>  %bout.[0 '%full-stop +on-load']
     =/  old=state-0  !<(state-0 ole)
     `this(state old)
   ::
   ++  on-poke                                           ::  poke handling
     |=  [=mark =vase]
     ^-  (quip card _this)
+    ~>  %bout.[0 '%full-stop +on-poke']
     ?.  =(%dot-point mark)  (on-poke:def mark vase)
     =^  cards  state
       (syzygy:hc (sort !<(drop vase) dor))              ::  - respect elders
@@ -104,20 +107,19 @@
   ++  on-arvo                                           :: eyre/behn handling
     |=  [=wire sign=sign-arvo]
     ^-  (quip card _this)
-    `this
-    :: ?+    wire  (on-arvo:def wire sign)
-    ::     [%eyre ~]
-    ::   ?>  ?=([%eyre %bound *] sign)
-    ::   ?:  accepted.sign  `this
-    ::   %.  `this
-    ::   (slog '%fullstop -failed-binding-eyre' ~)
-    :: ==
+    ~>  %bout.[0 '%full-stop +on-arvo']
+    ?+    wire  (on-arvo:def wire sign)
+        [%eyre ~]
+      ?>  ?=([%eyre %bound *] sign)
+      ?:  accepted.sign  `this
+      %.  `this
+      (slog '%full-stop -failed-binding-eyre' ~)
+    ==
   ++  on-watch                                          ::  subscription handling
     |=  pat=path
+    ~>  %bout.[0 '%full-stop +on-watch']
     ?>  =(our.bowl src.bowl)
-    ?.  =([%website ~] pat)
-      (on-watch:def pat)
-    ~&  >  "test"
+    ?.  =([%website ~] pat)  (on-watch:def pat)
     :_  this
     :_  ~
     %-  send:apogee:hc
@@ -146,6 +148,7 @@
   ++  on-peek                                           ::  scry handling
     |=  pat=path
     ^-  (unit (unit cage))
+    ~>  %bout.[0 '%full-stop +on-peek']
     ?+    pat  (on-peek:def pat)
         [%x %all ~]                                     ::  - get front-end startup data
       :+  ~  ~
@@ -293,9 +296,9 @@
         """
         The Standard Day method works best with cycles between 26 and 32 days.
         That range doesn't apply to everyone and might not apply to you.
-        %fullstop thinks your cycle is {<(div (roll a.p.mood add) (lent a.p.mood))>} days.
+        %full-stop thinks your cycle is {<(div (roll a.p.mood add) (lent a.p.mood))>} days.
 
-        If %fullstop is wrong about your cycle length, recording more cycles may help.
+        If %full-stop is wrong about your cycle length, recording more cycles may help.
         Otherwise, consider checking some of our other methods, or consider
         at home hormonal testing kits, or consult with your physician.
         """
@@ -313,7 +316,7 @@
       That range doesn't apply to everyone and might not apply to you.
       Your last recorded period was more than 32 days ago.
       
-      If %fullstop is missing data, recording more cycles may help.
+      If %full-stop is missing data, recording more cycles may help.
       Otherwise, consider checking some of our other methods, or consider
       at home hormonal testing kits, or consult with your physician.
       """
@@ -348,10 +351,10 @@
         :_  (frond standard-wont-work+~)
         """
         The Rhythm Method works best with periods that are very regular.
-        %fullstop uses a standard deviation of 2.7 ± 1.6 days as a baseline.
-        %fullstop thinks your cycle's Std. Dev. is {<+(range a.p.mood)>} days.
+        %full-stop uses a standard deviation of 2.7 ± 1.6 days as a baseline.
+        %full-stop thinks your cycle's Std. Dev. is {<+(range a.p.mood)>} days.
 
-        If %fullstop is wrong about your cycle length, recording more cycles may help.
+        If %full-stop is wrong about your cycle length, recording more cycles may help.
         Otherwise, consider checking some of our other methods, or consider
         at home hormonal testing kits, or consult with your physician.
         """
@@ -369,10 +372,10 @@
       :_  (frond standard-need-data+~)                  ::    * fail gracefully (cycle length)
       """
       The Rhythm Method works best with periods that are very regular.
-      %fullstop uses a standard deviation of 2.7 ± 1.6 days as a baseline.
-      %fullstop thinks your cycle's Std. Dev. is {<+(range a.p.mood)>} days.
+      %full-stop uses a standard deviation of 2.7 ± 1.6 days as a baseline.
+      %full-stop thinks your cycle's Std. Dev. is {<+(range a.p.mood)>} days.
 
-      If %fullstop is wrong about your cycle length, recording more cycles may help.
+      If %full-stop is wrong about your cycle length, recording more cycles may help.
       Otherwise, consider checking some of our other methods, or consider
       at home hormonal testing kits, or consult with your physician.
       """
@@ -404,7 +407,7 @@
       =-  [%.n (pairs ~[message+s+(crip -.-) error++.-])]
       :_  (frond:enjs:format next-need-data+~)
       """
-      %fullstop doesn't have enough data to predict your next period.
+      %full-stop doesn't have enough data to predict your next period.
       Recording more back-dated cycles may help.
       """
       ::
@@ -427,7 +430,7 @@
       =-  [0 ~ ~ [%.n -]]
       :_  (frond:enjs:format next-need-data+~)
       """
-      %fullstop doesn't have enough data to predict your next period.
+      %full-stop doesn't have enough data to predict your next period.
       Recording more back-dated cycles may help.
       """
     |=  $:  calm
@@ -443,7 +446,7 @@
       =-  [`v %.n 0 ~ `k [%.n -]]                       ::    ignore, start over
       :_  (frond:enjs:format next-lame-data+~)
       """
-      %fullstop needs more consecutive, tracked periods to predict your next period.
+      %full-stop needs more consecutive, tracked periods to predict your next period.
       Recording more back-dated cycles may help.
       """
     ?:  (gte c 7)                                       ::  if cycle < 60 days,
@@ -989,7 +992,7 @@
                 ==  
             """
             Your due date {<last>} is within 140 days of your last recorded cycle.
-            %fullstop might have bad data. Check your recorded periods for errors.
+            %full-stop might have bad data. Check your recorded periods for errors.
             If you meant to set your start date, or another date please re-enter it.
             """
           :_  state(bear `[(sub wen.pag ~d280) den])    ::  - set start by due date
@@ -1021,7 +1024,7 @@
               ==  
           """
           Your start date {<when>} is before your last recorded cycle.
-          %fullstop thinks your last period started on {<last>}.
+          %full-stop thinks your last period started on {<last>}.
           If you meant to set your due date, or another date please re-enter it.
           Alternatively, delete any conflicting period reports and re-attempt.
           """
@@ -1098,7 +1101,7 @@
               ==  
           """
           Your due date {<last>} is within 140 days of your last recorded cycle.
-          %fullstop might have bad data. Check your recorded periods for errors.
+          %full-stop might have bad data. Check your recorded periods for errors.
           If you meant to set your start date, or another date please re-enter it.
           """
         :_  state(bear `[(sub wen.pag ~d280) den])    ::  - set start by due date
@@ -1130,7 +1133,7 @@
             ==  
         """
         Your start date {<when>} is before your last recorded cycle.
-        %fullstop thinks your last period started on {<last>}.
+        %full-stop thinks your last period started on {<last>}.
         If you meant to set your due date, or another date please re-enter it.
         Alternatively, delete any conflicting period reports and re-attempt.
         """

@@ -2,7 +2,7 @@
 ::  dot-point mark
 ::
 /-  *blood
-/+  prod=fullstop
+/+  prod=full-stop
 ::
 |_  drip=drop
 ++  grad  %noun
