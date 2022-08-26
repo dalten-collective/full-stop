@@ -3,7 +3,7 @@
   info+'A Period Tracker'
   color+0x7f.0002
   glob-http+['https://bootstrap.urbit.org/glob-0v2.p3f6i.19q8d.lsgcb.mckg7.dtu8f.glob' 0v2.p3f6i.19q8d.lsgcb.mckg7.dtu8f]
-  base+'fullstop'
+  base+'full-stop'
   version+[0 0 1]
   license+'REKT'
   website+'https://www.quartus.co'
