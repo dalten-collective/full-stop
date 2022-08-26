@@ -6,24 +6,25 @@ import Urbit from '@urbit/http-api';
 
 const api = new Urbit('', '', window.desk);
 api.ship = window.ship;
+window.api = api;
+
+// window.api.poke({app: "full-stop", mark: "dot-point", json: [{wen: 1661527629, flow: {wen: 1661527629}}]})
 
 export function App() {
   const [subscription, setSub] = useState();
 
-  // useEffect(() => {
-  //   async function init() {
-  //     // api.subscribe({
-  //     //   app: "full-stop",
-  //     //   path: "/website",
-  //     //   handler: (event) => {
-  //     //     console.log(event)
-  //     //   }
-  //     // })
+  useEffect(() => {
+    async function init() {
+      const fuck = await api.scry({
+        app: "full-stop",
+        path: "/all",
+      })
 
-  //     console.log(fuck);
-  //   }
-  //   init();
-  // })
+      console.log(fuck)
+
+    }
+    init();
+  })
 
   return (
     <main>fuck</main>
