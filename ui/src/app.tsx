@@ -11,23 +11,30 @@ window.api = api;
 // window.api.poke({app: "full-stop", mark: "dot-point", json: [{wen: 1661527629, flow: {wen: 1661527629}}]})
 
 export function App() {
-  const [subscription, setSub] = useState();
+  // const [subscription, setSub] = useState();
+  const [periods, setPeriods] = useState();
 
   useEffect(() => {
     async function init() {
-      const fuck = await api.scry({
+      const getPeriods = await api.scry({
         app: "full-stop",
-        path: "/all",
+        path: "/moon/each",
       })
-
-      console.log(fuck)
-
+      setPeriods(getPeriods);
     }
     init();
-  })
+  }, [])
+
+  console.log(periods)
 
   return (
-    <main>fuck</main>
+    <main></main>
+    // <main>
+    //   periods.forEach(e => {
+    //     <p>{e.}</p>
+    //   });
+    //   <p>{periods[0]}</p>
+    // </main>
   )
 }
 
