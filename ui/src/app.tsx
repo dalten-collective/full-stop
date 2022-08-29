@@ -25,7 +25,19 @@ export function App() {
     init();
   }, [])
 
-  console.log(periods)
+  const inputPeriod = (curDate, flowDate, stopDate) => {
+    window.api.poke({
+        app: "full-stop",
+        mark: "dot-point",
+        json: [{
+          wen: curDate, 
+          flow: {wen: flowDate}, 
+          stop: {wen: stopDate}
+        }]
+      })
+  }
+
+  // console.log(periods)
 
   return (
     <main>
