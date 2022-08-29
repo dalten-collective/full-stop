@@ -9,10 +9,13 @@ api.ship = window.ship;
 window.api = api;
 
 // window.api.poke({app: "full-stop", mark: "dot-point", json: [{wen: 1661527629, flow: {wen: 1661527629}}]})
+// window.api.poke({app: "full-stop", mark: "dot-point", json: [{wen: 1661795929, flow: {wen: 1651406329}}, {wen: 1661795930, stop: {wen: 1651751929}}]})
 
 export function App() {
   // const [subscription, setSub] = useState();
   const [periods, setPeriods] = useState();
+  const [flowdate, setFlowdate] = useState("");
+  const [stopdater, setStopdate] = useState("");
 
   useEffect(() => {
     async function init() {
@@ -29,15 +32,14 @@ export function App() {
     window.api.poke({
         app: "full-stop",
         mark: "dot-point",
-        json: [{
-          wen: curDate, 
-          flow: {wen: flowDate}, 
-          stop: {wen: stopDate}
-        }]
+        json: [
+          { wen: curDate, flow: {wen: flowDate}},
+          { wen: curDate +1, stop: {wen: stopDate}}
+        ]
       })
   }
 
-  // console.log(periods)
+  console.log(periods)
 
   return (
     <main>
