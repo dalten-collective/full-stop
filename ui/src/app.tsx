@@ -28,7 +28,28 @@ export function App() {
   console.log(periods)
 
   return (
-    <main></main>
+    <main>
+      <table className='table-auto text-left border ml-6 my-3'>
+        <thead>
+          <tr>
+            <th className='border pr-6'>period entry last edited</th>
+            <th className='border pr-6'>start date</th>
+            <th className='border pr-6'>end date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Object.values(periods || {})
+          .map((each) => {
+            return(
+            <tr>
+              <td className='border pr-6'>{new Date(each?.flow?.edit * 1000).toLocaleString()}</td>
+              <td className='border pr-6'>{new Date(each?.start * 1000).toLocaleString()}</td>
+              <td className='border pr-6'>{new Date(each?.flow?.stop * 1000).toLocaleString()}</td>
+            </tr>)
+          })}
+        </tbody>
+      </table>
+    </main>
     // <main>
     //   periods.forEach(e => {
     //     <p>{e.}</p>
