@@ -1,8 +1,6 @@
 // @ts-nocheck
 import React, { useEffect, useState } from 'react';
 import Urbit from '@urbit/http-api';
-// import { Charges, ChargeUpdateInitial, scryCharges } from '@urbit/api';
-// import { AppTile } from './components/AppTile';
 
 const api = new Urbit('', '', window.desk);
 api.ship = window.ship;
@@ -10,6 +8,18 @@ window.api = api;
 
 // window.api.poke({app: "full-stop", mark: "dot-point", json: [{wen: 1661527629, flow: {wen: 1661527629}}]})
 // window.api.poke({app: "full-stop", mark: "dot-point", json: [{wen: 1661795929, flow: {wen: 1651406329}}, {wen: 1661795930, stop: {wen: 1651751929}}]})
+function PeriodForm() {
+  return (
+    <form>
+      <p>period start:</p>
+      <input type="date" className='border mb-3'/>
+      <p>period end:</p>
+      <input type="date" className='border mb-3'/>
+      <br/>
+      <input type="submit" value="record"/>
+    </form>
+  )
+}
 
 export function App() {
   // const [subscription, setSub] = useState();
@@ -63,12 +73,10 @@ export function App() {
           })}
         </tbody>
       </table>
+      <hr/>
+      <div className='ml-6 my-3'>
+          <PeriodForm/>
+      </div>
     </main>
-    // <main>
-    //   periods.forEach(e => {
-    //     <p>{e.}</p>
-    //   });
-    //   <p>{periods[0]}</p>
-    // </main>
   )
 }
