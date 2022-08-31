@@ -21,6 +21,8 @@ function PeriodForm() {
   )
 }
 
+const dateOptions = { day: '2-digit', month: '2-digit', year: 'numeric' }
+
 export function App() {
   // const [subscription, setSub] = useState();
   const [periods, setPeriods] = useState();
@@ -56,9 +58,9 @@ export function App() {
       <table className='table-auto text-left border ml-6 my-3'>
         <thead>
           <tr>
-            <th className='border pr-6'>period entry last edited</th>
-            <th className='border pr-6'>start date</th>
-            <th className='border pr-6'>end date</th>
+            <th className='border pr-6'>date entered</th>
+            <th className='border pr-6'>period started</th>
+            <th className='border pr-6'>period ended</th>
           </tr>
         </thead>
         <tbody>
@@ -66,9 +68,9 @@ export function App() {
           .map((each) => {
             return(
             <tr>
-              <td className='border pr-6'>{new Date(each?.flow?.edit * 1000).toLocaleString()}</td>
-              <td className='border pr-6'>{new Date(each?.start * 1000).toLocaleString()}</td>
-              <td className='border pr-6'>{new Date(each?.flow?.stop * 1000).toLocaleString()}</td>
+              <td className='border pr-6'>{new Date(each?.flow?.edit * 1000).toLocaleString(undefined, dateOptions)}</td>
+              <td className='border pr-6'>{new Date(each?.start * 1000).toLocaleString(undefined, dateOptions)}</td>
+              <td className='border pr-6'>{new Date(each?.flow?.stop * 1000).toLocaleString(undefined, dateOptions)}</td>
             </tr>)
           })}
         </tbody>
