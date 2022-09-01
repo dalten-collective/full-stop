@@ -8,26 +8,46 @@ window.api = api;
 
 // window.api.poke({app: "full-stop", mark: "dot-point", json: [{wen: 1661527629, flow: {wen: 1661527629}}]})
 // window.api.poke({app: "full-stop", mark: "dot-point", json: [{wen: 1661795929, flow: {wen: 1651406329}}, {wen: 1661795930, stop: {wen: 1651751929}}]})
+
+const dateOptions = { day: '2-digit', month: '2-digit', year: 'numeric' }
+
 function PeriodForm() {
+  const [flowDate, setFlowdate] = useState();
+  const [stopDate, setStopdate] = useState();
+
+  const inputPeriod = (event) => {
+    event.preventDefault();
+    let timeNow = Math.floor(Date.now() / 1000);
+    let timeNowpp = timeNow + 1
+
+    window.api.poke({
+        app: "full-stop",
+        mark: "dot-point",
+        json: [
+          {wen: timeNow,   flow: {wen: flowDate}}, 
+          {wen: timeNowpp, stop: {wen: stopDate}}]
+      }).then(() => location.reload());
+  };
+
   return (
-    <form>
-      <p>period start:</p>
-      <input type="date" className='border mb-3'/>
-      <p>period end:</p>
-      <input type="date" className='border mb-3'/>
+    <form onSubmit={event => inputPeriod(event)}>
+      <label>
+        period start:<br/>
+        <input type="date" className='border mb-3' onChange={e => setFlowdate(e.target.valueAsNumber / 1000)}/>
+      </label>
+      <br/>
+      <label>
+        period end:<br/>
+        <input type="date" className='border mb-3' onChange={e => setStopdate(e.target.valueAsNumber / 1000)}/>
+      </label>
       <br/>
       <input type="submit" value="record"/>
     </form>
   )
 }
 
-const dateOptions = { day: '2-digit', month: '2-digit', year: 'numeric' }
-
 export function App() {
-  // const [subscription, setSub] = useState();
   const [periods, setPeriods] = useState();
-  const [flowdate, setFlowdate] = useState("");
-  const [stopdater, setStopdate] = useState("");
 
   useEffect(() => {
     async function init() {
@@ -39,17 +59,6 @@ export function App() {
     }
     init();
   }, [])
-
-  const inputPeriod = (curDate, flowDate, stopDate) => {
-    window.api.poke({
-        app: "full-stop",
-        mark: "dot-point",
-        json: [
-          { wen: curDate, flow: {wen: flowDate}},
-          { wen: curDate +1, stop: {wen: stopDate}}
-        ]
-      })
-  }
 
   console.log(periods)
 
