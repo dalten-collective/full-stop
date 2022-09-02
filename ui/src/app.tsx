@@ -17,8 +17,17 @@ function PeriodForm() {
 
   const inputPeriod = (event) => {
     event.preventDefault();
+
     let timeNow = Math.floor(Date.now() / 1000);
     let timeNowpp = timeNow + 1
+
+    if(typeof flowDate == 'undefined' || typeof stopDate == 'undefined') {
+      return window.alert("submit a period start or end date");
+    }
+
+    if(flowDate > timeNow || stopDate > timeNow) {
+      return window.alert("your period start or end cannot be in the future");
+    }
 
     window.api.poke({
         app: "full-stop",
@@ -29,21 +38,34 @@ function PeriodForm() {
       }).then(() => location.reload());
   };
 
+  let maxDate = new Date().toLocaleDateString('en-CA')
+  let today = new Date(); // one month before today
+  let minDate = new Date(today.setMonth(today.getMonth() - 1, 1)).toLocaleDateString('en-ca')
+
   return (
     <form onSubmit={event => inputPeriod(event)}>
-      <label>
-        period start:<br/>
-        <input type="date" className='border mb-3' onChange={e => setFlowdate(e.target.valueAsNumber / 1000)}/>
+      <label>period start:<br/>
+        <input type="date" className='border mb-3' min={minDate} max={maxDate} onChange={e => setFlowdate(e.target.valueAsNumber / 1000)}/>
       </label>
       <br/>
-      <label>
-        period end:<br/>
-        <input type="date" className='border mb-3' onChange={e => setStopdate(e.target.valueAsNumber / 1000)}/>
+      <label>period end:<br/>
+        <input type="date" className='border mb-3' min={minDate} max={maxDate} onChange={e => setStopdate(e.target.valueAsNumber / 1000)}/>
       </label>
       <br/>
       <input type="submit" value="record"/>
     </form>
   )
+}
+
+function retDate(v) {
+  let rv;
+  if (v == null){
+    rv = 'Not recorded'
+  } else {
+    rv = new Date(v * 1000).toLocaleString(undefined, dateOptions)
+  }
+  
+  return rv;
 }
 
 export function App() {
@@ -77,9 +99,9 @@ export function App() {
           .map((each) => {
             return(
             <tr>
-              <td className='border pr-6'>{new Date(each?.flow?.edit * 1000).toLocaleString(undefined, dateOptions)}</td>
-              <td className='border pr-6'>{new Date(each?.start * 1000).toLocaleString(undefined, dateOptions)}</td>
-              <td className='border pr-6'>{new Date(each?.flow?.stop * 1000).toLocaleString(undefined, dateOptions)}</td>
+              <td className='border pr-6'>{ retDate(each?.flow?.edit) }</td>
+              <td className='border pr-6'>{ retDate(each?.start) }</td>
+              <td className='border pr-6'>{ retDate(each?.flow?.stop) }</td>
             </tr>)
           })}
         </tbody>
