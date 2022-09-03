@@ -6,50 +6,60 @@ const api = new Urbit('', '', window.desk);
 api.ship = window.ship;
 window.api = api;
 
-// window.api.poke({app: "full-stop", mark: "dot-point", json: [{wen: 1661527629, flow: {wen: 1661527629}}]})
-// window.api.poke({app: "full-stop", mark: "dot-point", json: [{wen: 1661795929, flow: {wen: 1651406329}}, {wen: 1661795930, stop: {wen: 1651751929}}]})
-
-const dateOptions = { day: '2-digit', month: '2-digit', year: 'numeric' }
-
 function PeriodForm() {
   const [flowDate, setFlowdate] = useState();
   const [stopDate, setStopdate] = useState();
 
-  const inputPeriod = (event) => {
-    event.preventDefault();
+  const submitPeriod = (timestamp, pstart, pstop) => {
+    let actions = []
 
-    let timeNow = Math.floor(Date.now() / 1000);
-    let timeNowpp = timeNow + 1
-
-    if(typeof flowDate == 'undefined' || typeof stopDate == 'undefined') {
-      return window.alert("submit a period start or end date");
+    if (pstart) { 
+      actions.push({ wen: timestamp, flow: { wen: flowDate } }); 
+      timestamp++ 
+    }
+    
+    if (pstop)  { 
+      actions.push({ wen: timestamp, stop: { wen: stopDate } })
     }
 
-    if(flowDate > timeNow || stopDate > timeNow) {
-      return window.alert("your period start or end cannot be in the future");
-    }
-
-    window.api.poke({
+    return window.api.poke({
         app: "full-stop",
         mark: "dot-point",
-        json: [
-          {wen: timeNow,   flow: {wen: flowDate}}, 
-          {wen: timeNowpp, stop: {wen: stopDate}}]
+        json: actions,
       }).then(() => location.reload());
   };
 
-  let maxDate = new Date().toLocaleDateString('en-CA')
-  let today = new Date(); // one month before today
-  let minDate = new Date(today.setMonth(today.getMonth() - 1, 1)).toLocaleDateString('en-ca')
+  let maxDate = new Date()
+  let temp = new Date(); // one month before today
+  let minDate = new Date(temp.setMonth(temp.getMonth() - 1, 1))
+
+  const validateSubmission = (event) => {
+    event.preventDefault();
+
+    let start = true, end = true;
+    let timeNow = Math.floor(Date.now() / 1000);
+
+    if (typeof flowDate == 'undefined') { start = false; }
+    if (typeof stopDate == 'undefined') { end = false; }
+
+    if (!start && !end) {
+      return window.alert("you must submit a valid start or end date")
+    }
+
+    return submitPeriod(timeNow, start, end);
+  }
+
+  let formMax = maxDate.toLocaleDateString('en-CA')
+  let formMin = minDate.toLocaleDateString('en-CA')
 
   return (
-    <form onSubmit={event => inputPeriod(event)}>
+    <form onSubmit={event => validateSubmission(event)}>
       <label>period start:<br/>
-        <input type="date" className='border mb-3' min={minDate} max={maxDate} onChange={e => setFlowdate(e.target.valueAsNumber / 1000)}/>
+        <input type="date" className='border mb-3' min={formMin} max={formMax} onChange={e => setFlowdate(e.target.valueAsNumber / 1000)}/>
       </label>
       <br/>
       <label>period end:<br/>
-        <input type="date" className='border mb-3' min={minDate} max={maxDate} onChange={e => setStopdate(e.target.valueAsNumber / 1000)}/>
+        <input type="date" className='border mb-3' min={formMin} max={formMax} onChange={e => setStopdate(e.target.valueAsNumber / 1000)}/>
       </label>
       <br/>
       <input type="submit" value="record"/>
@@ -60,9 +70,14 @@ function PeriodForm() {
 function retDate(v) {
   let rv;
   if (v == null){
-    rv = 'Not recorded'
+    rv = 'Not recorded';
   } else {
-    rv = new Date(v * 1000).toLocaleString(undefined, dateOptions)
+    rv = new Date(v * 1000)
+    .toLocaleString(undefined, { 
+      day: '2-digit', 
+      month: '2-digit', 
+      year: 'numeric' 
+    });
   }
   
   return rv;
