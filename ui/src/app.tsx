@@ -35,6 +35,29 @@ function retActions(scryArray) {
   return actions
 }
 
+function updatePeriods(oldScry) {
+  let newScry;
+  if (compareScryObjLen(oldScry, newScry)) { // do an update
+
+  } else { // check the last recorded flows
+    let lastflowOld = oldScry[oldScry.length - 1], lastflowNew = newScry[newScry.length - 1];
+    let res = compareFlowsObjs(lastflowOld, lastflowNew)
+    if (res) { // the same? okay, no update
+
+    } else { // different? check the rest, do an update
+
+    }
+  }
+}
+
+function compareScryObjLen(oldScry, newScry) {
+  return (newScry.length == oldScry.length)  //are they the same length?
+}
+
+function compareFlowsObjs(oldFlow, newFlow) {
+
+}
+
 function retDate(v) {
   let rv = 'not recorded';
   if (v !== null) {
@@ -70,7 +93,10 @@ export function App() {
     init();
   }, [])
 
-  if (periods != undefined) { console.log(retActions(periods)); }
+  if (periods != undefined) { 
+    // console.log(retActions(periods));
+    console.log(periods)
+  }
 
   return (
     <main>
@@ -88,13 +114,14 @@ export function App() {
           .map((each) => {
             let rateString = retRateString(each.flow.rate)
 
-            return(
-            <tr>
-              <td className='border pr-6'>{ retDate(each?.flow?.edit) }</td>
-              <td className='border pr-6'>{ retDate(each?.start) }</td>
-              <td className='border pr-6'>{ retDate(each?.flow?.stop) }</td>
-              <td className='border pr-6'>{ rateString }</td>
-            </tr>)
+            return (
+              <tr>
+                <td className='border pr-6'>{ retDate(each?.flow?.edit) }</td>
+                <td className='border pr-6'>{ retDate(each?.start) }</td>
+                <td className='border pr-6'>{ retDate(each?.flow?.stop) }</td>
+                <td className='border pr-6'>{ rateString }</td>
+              </tr>
+            )
           })}
         </tbody>
       </table>
@@ -104,6 +131,11 @@ export function App() {
           <PeriodForm/>
           <RateForm/>
       </div>
+      <button onClick={() => alart()}>check for updates</button>
     </main>
   )
+}
+
+function alart() {
+  window.alert("lol")
 }
