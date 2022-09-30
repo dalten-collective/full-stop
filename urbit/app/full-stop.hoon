@@ -150,6 +150,11 @@
     ^-  (unit (unit cage))
     ~>  %bout.[0 '%full-stop +on-peek']
     ?+    pat  (on-peek:def pat)
+        [%x %last ~]                                    ::  - get last update time
+      =-  ``json+!>(`json`-)
+      %-  frond:enjs:format
+      last-edit/la-emit:la-eval:las:hc
+    ::
         [%x %all ~]                                     ::  - get front-end startup data
       :+  ~  ~
       =-  json+!>(`json`-)
@@ -216,6 +221,48 @@
   ++  on-leave  on-leave:def
   --
 |_  bol=bowl:gall
+++  las                                                  :: last edit calculators
+  |_  t=(list time)
+  ++  la-eval
+    .(t [ev-moon ev-rain ev-fire ev-bear ev-opts ev-hold ~])
+  ++  la-emit
+    ^-  json
+    ?>  !?=(~ t)
+    (sect:enjs:format (head (sort t gth)))
+  ::
+  ++  ev-moon
+    ?~  moon  *@da
+    =+  tick=(lunar flow)
+    =-  edit:v:(head -)
+    ^-  (list [k=time v=flow])
+    %+  sort
+      (bap:tick moon)
+    |=  [[kn=time vn=flow] [ko=time vo=flow]]
+    (gth edit.vn edit.vo)
+  ::
+  ++  ev-rain
+    ?~  rain  *@da
+    =+  tick=(lunar ,[cons time])
+    =-  +>:(head -)
+    (sort (bap:tick rain) rf-comp)
+  ::
+  ++  ev-fire
+    ?~  fire  *@da
+    =+  tick=(lunar ,[base time])
+    =-  +>:(head -)
+    (sort (bap:tick fire) rf-comp)
+  ::
+  ++  ev-bear
+    ?~(bear *@da edit.u.bear)
+  ::
+  ++  ev-hold
+    ?~(hold *@da edit.u.hold)
+  ::
+  ++  ev-opts  edit.opts
+  ::
+  ++  rf-comp
+    |=([[@ [@ vn=time]] [@ [@ vo=time]]] (gth vn vo))
+  --
 ++  apogee                                              :: json output
   =,  enjs:format
   |%
