@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useFocusEffect } from 'react';
 import Urbit from '@urbit/http-api';
 import { RateForm } from './components/rateform';
 import { PeriodForm } from './components/periodform';
@@ -35,27 +35,14 @@ function retActions(scryArray) {
   return actions
 }
 
-function updatePeriods(oldScry) {
-  let newScry;
-  if (compareScryObjLen(oldScry, newScry)) { // do an update
-
-  } else { // check the last recorded flows
-    let lastflowOld = oldScry[oldScry.length - 1], lastflowNew = newScry[newScry.length - 1];
-    let res = compareFlowsObjs(lastflowOld, lastflowNew)
-    if (res) { // the same? okay, no update
-
-    } else { // different? check the rest, do an update
-
-    }
-  }
-}
-
-function compareScryObjLen(oldScry, newScry) {
-  return (newScry.length == oldScry.length)  //are they the same length?
-}
-
-function compareFlowsObjs(oldFlow, newFlow) {
-
+async function updatePeriods(prevLast) {
+  await api.scry({
+    app: "full-stop",
+    path: "/last",
+  }).then((latest) => {
+    console.log("previous oldest: " + prevLast["last-edit"]);
+    console.log("latest oldest: " + latest["last-edit"]);
+  });
 }
 
 function retDate(v) {
@@ -81,6 +68,7 @@ function retRateString(tuples) {
 
 export function App() {
   const [periods, setPeriods] = useState();
+  const [lastEdit, setLastEdit] = useState();
 
   useEffect(() => {
     async function init() {
@@ -88,13 +76,21 @@ export function App() {
         app: "full-stop",
         path: "/moon/each",
       })
+      const getLastEdit = await api.scry({
+        app: "full-stop",
+        path: "/last"
+      })
+      setLastEdit(getLastEdit);
       setPeriods(getPeriods);
     }
     init();
   }, [])
 
+  window.addEventListener("focus", updatePeriods(lastEdit), false);
+
+  // document.addEventListener("focus", updatePeriods(lastEdit))
+
   if (periods != undefined) { 
-    // console.log(retActions(periods));
     console.log(periods)
   }
 
@@ -131,11 +127,7 @@ export function App() {
           <PeriodForm/>
           <RateForm/>
       </div>
-      <button onClick={() => alart()}>check for updates</button>
+      {/* <button onClick={() => alart()}>check for updates</button> */}
     </main>
   )
-}
-
-function alart() {
-  window.alert("lol")
 }
