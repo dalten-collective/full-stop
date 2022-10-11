@@ -115,7 +115,7 @@
       %.  `this
       (slog '%full-stop -failed-binding-eyre' ~)
     ==
-  ++  on-watch                                          ::  subscription handling
+  ++  on-watch                                          ::  subs handling
     |=  pat=path
     ~>  %bout.[0 '%full-stop +on-watch']
     ?>  =(our.bowl src.bowl)
@@ -150,12 +150,12 @@
     ^-  (unit (unit cage))
     ~>  %bout.[0 '%full-stop +on-peek']
     ?+    pat  (on-peek:def pat)
-        [%x %last ~]                                    ::  - get last update time
+        [%x %last ~]                                    ::  - last update time
       =-  ``json+!>(`json`-)
       %-  frond:enjs:format
       last-edit/la-emit:la-eval:las:hc
     ::
-        [%x %all ~]                                     ::  - get front-end startup data
+        [%x %all ~]                                     ::  - web startup data
       :+  ~  ~
       =-  json+!>(`json`-)
       %-  pairs:enjs:format
@@ -221,14 +221,35 @@
   ++  on-leave  on-leave:def
   --
 |_  bol=bowl:gall
-++  las                                                  :: last edit calculators
+++  las                                                  :: last edit calculator
   |_  t=(list time)
   ++  la-eval
+    =+  ev-rain=((ev-rare ,[p=cons edit=time]) rain)
+    =+  ev-fire=((ev-rare ,[p=base edit=time]) fire)
     .(t [ev-moon ev-rain ev-fire ev-bear ev-opts ev-hold ~])
   ++  la-emit
     ^-  json
     ?>  !?=(~ t)
     (sect:enjs:format (head (sort t gth)))
+  ::
+  ++  ev-opts  edit.opts
+  ::
+  ++  ev-bear
+    ?~(bear *@da edit.u.bear)
+  ::
+  ++  ev-hold
+    ?~(hold *@da edit.u.hold)
+  ::
+  ++  rf-comp
+    |=([[@ [@ vn=time]] [@ [@ vo=time]]] (gth vn vo))
+  ::
+  ++  ev-rare
+    |*  typ=mold
+    |=  syp=(cycle typ)
+    ?~  syp  *@da
+    =+  tick=(lunar typ)
+    =-  +>:(head -)
+    (sort (bap:tick syp) rf-comp)
   ::
   ++  ev-moon
     ?~  moon  *@da
@@ -239,29 +260,6 @@
       (bap:tick moon)
     |=  [[kn=time vn=flow] [ko=time vo=flow]]
     (gth edit.vn edit.vo)
-  ::
-  ++  ev-rain
-    ?~  rain  *@da
-    =+  tick=(lunar ,[cons time])
-    =-  +>:(head -)
-    (sort (bap:tick rain) rf-comp)
-  ::
-  ++  ev-fire
-    ?~  fire  *@da
-    =+  tick=(lunar ,[base time])
-    =-  +>:(head -)
-    (sort (bap:tick fire) rf-comp)
-  ::
-  ++  ev-bear
-    ?~(bear *@da edit.u.bear)
-  ::
-  ++  ev-hold
-    ?~(hold *@da edit.u.hold)
-  ::
-  ++  ev-opts  edit.opts
-  ::
-  ++  rf-comp
-    |=([[@ [@ vn=time]] [@ [@ vo=time]]] (gth vn vo))
   --
 ++  apogee                                              :: json output
   =,  enjs:format
@@ -270,7 +268,7 @@
     |=  [m=^tape j=json]
     (send (pairs ~[message+s+(crip m) error+j]))
   ::
-  ++  send                                              ::  - send card
+  ++  send                                              ::  - send card (diff)
     |=  jon=json
     ^-  card
     [%give %fact ~[/website] json+!>(jon)]
@@ -1199,8 +1197,8 @@
   ::
   ++  birth-control
     |=  [den=time con=controls]
-    ?~  hold
-      ?+    -.con  `state
+    ?~  hold                                            ::  if not tracking, ignore
+      ?+    -.con  `state                               ::  if irrational, ignore
           %pill
         =/  last=[h=@ud m=@ud am=?]                     ::  almost always midnight, sis
           =+  d=(yore wen.con)
@@ -1216,25 +1214,89 @@
             miss+~
             edit+(sect:enjs:format den)
         ==
+      ::
+          %term
+        =.  wen.con  (sub wen.con (mod wen.con ~d1))    ::  always midnight, sis
+        =/  next=time
+          (add (sub wen.con (mod wen.con ~d1)) again.con)
+        :_  =-  state(hold -)
+            :-  ~  :_  den
+            [%term (sub wen.con (mod wen.con ~d1)) next]
+        =-  ~[(send:apogee (frond:enjs:format hold+-))]
+        %+  frond:enjs:format  %term
+        %-  pairs:enjs:format
+        :~  when+(sect:enjs:format wen.con)
+            next+(sect:enjs:format next)
+            edit+(sect:enjs:format den)
+        ==
       ==
+    ?.  (gth den edit.u.hold)  `state                   ::  - ignore old updates
     ?-    -.con
         %free
-      `state
-      :: ?~  hold
-      ::  :_  state
-      ::  ~[(send:apogee (frond:enjs:format hold+~))]
-      :: ?.  (gth den edit.u.hold)  `state
-      :: :_  state
-      :: ~[(send:apogee (frond:enjs:format hold+~))]
+      :_  state(hold ~)
+      ~[(send:apogee (frond:enjs:format hold+~))]
     ::
         %miss
-      `state
+      =.  wen.con  (sub wen.con (mod wen.con ~d1))      ::  always midnight, sis
+      ?.  ?=(%pill -.type.u.hold)  `state               ::  - ignore mismatch
+      =/  miss=_type.u.hold
+        =,  type.u.hold
+        [%pill h m am (~(put in miss) wen.con)]
+      =/  mist=(list json)
+        %~  tap  in
+        ^-  (set json)
+        (~(run in miss.miss) sect:enjs:format)
+      :_  state(hold `[miss den])
+      =-  ~[(send:apogee (frond:enjs:format hold+-))]
+      %+  frond:enjs:format  %pill
+      %-  pairs:enjs:format
+      :~  hour+(numb:enjs:format h.miss)
+          min+(numb:enjs:format m.miss)
+          am+b+am.miss
+          miss+a/mist
+          edit+(sect:enjs:format den)
+      ==
     ::
         %pill
-      `state
+      =/  last=[h=@ud m=@ud am=?]                       ::  almost always midnight, sis
+        =+  d=(yore wen.con)
+        [h.t.d m.t.d (gte h.t.d 12)]
+      ?:  ?=(%pill -.type.u.hold)
+        :_  =-  state(hold -)
+            :-  ~  :_  den
+            [%pill h.last m.last am.last miss.type.u.hold]
+        =-  ~[(send:apogee (frond:enjs:format hold+-))]
+        %+  frond:enjs:format  %pill
+        %-  pairs:enjs:format
+        :~  hour+(numb:enjs:format h.last)
+            min+(numb:enjs:format m.last)
+            am+b/am.last
+            miss+~
+            edit+(sect:enjs:format den)
+        ==
+      :_  =-  state(hold -)
+          `[[%pill h.last m.last am.last ~] den]
+      =-  ~[(send:apogee (frond:enjs:format hold+-))]
+      %+  frond:enjs:format  %pill
+      %-  pairs:enjs:format
+      :~  hour+(numb:enjs:format h.last)
+          min+(numb:enjs:format m.last)
+          am+b+am.last
+          miss+~
+          edit+(sect:enjs:format den)
+      ==
     ::
         %term
-      `state
+      =.  wen.con  (sub wen.con (mod wen.con ~d1))      ::  always midnight, sis
+      =/  again=time  (add wen.con again.con)
+      :_  =-  state(hold -)
+          `[[%term wen.con again] den]
+      =-  ~[(send:apogee (frond:enjs:format hold+-))]
+      %+  frond:enjs:format  %term
+      %-  pairs:enjs:format
+      :~  when+(sect:enjs:format wen.con)
+          next+(sect:enjs:format again)
+      ==
     ==
   ::
   ++  configuration
@@ -1243,6 +1305,23 @@
   ::
   ++  getting-it-on
     |=  [den=time sex=relation]
-    `state
+    ?-    -.sex
+        %mate
+      :_  state(mate (~(put in mate) +.sex))
+      =-  ~[(send:apogee (frond:enjs:format mate+-))]
+      %+  frond:enjs:format  %mate
+      %+  frond:enjs:format  %add
+      %-  pairs:enjs:format
+      :~  when+(sect:enjs:format wen.sex)
+          note+?~(note.sex ~ s/u.note.sex)
+          barr+b/barr.sex
+      ==
+    ::
+        %drop
+      :_  state(mate (~(del in mate) +.sex))
+      =-  ~[(send:apogee (frond:enjs:format mate+-))]
+      %+  frond:enjs:format  %mate
+      (frond:enjs:format del/(sect:enjs:format wen.sex))
+    ==
   --
 --
