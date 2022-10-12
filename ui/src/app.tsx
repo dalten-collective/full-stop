@@ -35,13 +35,40 @@ function retActions(scryArray) {
   return actions
 }
 
+function useWindowFocus() {
+  const [focused, setFocus] = useState(false);
+
+  useEffect(() => {
+    function blur() {
+      setFocus(false);
+    }
+
+    function focus() {
+      setFocus(true);
+    }
+    window.addEventListener("focus", focus);
+    window.addEventListener("blur", blur);
+    return () => {
+      window.removeEventListener("focus", focus);
+      window.removeEventListener("blur", blur);
+    }
+  }, [])
+
+  return focused;
+}
+
 async function updatePeriods(prevLast) {
+  if (prevLast === undefined) {
+    return
+  }
+
   await api.scry({
     app: "full-stop",
     path: "/last",
   }).then((latest) => {
-    console.log("previous oldest: " + prevLast["last-edit"]);
-    console.log("latest oldest: " + latest["last-edit"]);
+    console.log("previous oldest: " + prevLast["last-edit"] + ";" + "latest oldest: " + latest["last-edit"]);
+  }).catch((reason) => {
+    console.log("promise rejected; reason: " + reason);
   });
 }
 
@@ -69,6 +96,7 @@ function retRateString(tuples) {
 export function App() {
   const [periods, setPeriods] = useState();
   const [lastEdit, setLastEdit] = useState();
+  const focused = useWindowFocus();
 
   useEffect(() => {
     async function init() {
@@ -86,12 +114,15 @@ export function App() {
     init();
   }, [])
 
-  window.addEventListener("focus", updatePeriods(lastEdit), false);
-
-  // document.addEventListener("focus", updatePeriods(lastEdit))
+  useEffect(() => {
+    if(focused) {
+      updatePeriods(lastEdit);
+    }
+    
+  }, [focused])
 
   if (periods != undefined) { 
-    console.log(periods)
+    // console.log(periods)
   }
 
   return (
