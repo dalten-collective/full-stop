@@ -1,5 +1,6 @@
 // @ts-nocheck
-import React, { useEffect, useState, useFocusEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useLocalStorage, useWindowFocus } from './lib';
 import Urbit from '@urbit/http-api';
 import { RateForm } from './components/rateform';
 import { PeriodForm } from './components/periodform';
@@ -35,41 +36,48 @@ function retActions(scryArray) {
   return actions
 }
 
-function useWindowFocus() {
-  const [focused, setFocus] = useState(false);
-
-  useEffect(() => {
-    function blur() {
-      setFocus(false);
-    }
-
-    function focus() {
-      setFocus(true);
-    }
-    window.addEventListener("focus", focus);
-    window.addEventListener("blur", blur);
-    return () => {
-      window.removeEventListener("focus", focus);
-      window.removeEventListener("blur", blur);
-    }
-  }, [])
-
-  return focused;
-}
-
-async function updatePeriods(prevLast) {
+async function shouldUpdatePeriods(prevLast) {
   if (prevLast === undefined) {
     return
   }
+
+  let shouldUpdate = false
 
   await api.scry({
     app: "full-stop",
     path: "/last",
   }).then((latest) => {
-    console.log("previous oldest: " + prevLast["last-edit"] + ";" + "latest oldest: " + latest["last-edit"]);
+    let latestInt = latest["last-edit"]
+    let prevLastInt = prevLast["last-edit"]
+    if (latestInt === prevLastInt) {
+      ;
+    } else {
+      shouldUpdate = true
+    }
   }).catch((reason) => {
     console.log("promise rejected; reason: " + reason);
   });
+
+  return shouldUpdate;
+}
+
+function buildFlowCells(periods) {
+  if (periods === undefined) {
+    return
+  }
+
+  let flowCells = []
+
+  Object.values(periods || {})
+        .map((each) => {
+          let rateString = retRateString(each.flow.rate)
+          let editDate = retDate(each?.flow?.edit)
+          let startDate = retDate(each?.start)
+          let endDate = retDate(each?.flow?.stop)
+          flowCells.push({start: startDate, end: endDate, edit: editDate, rate: rateString})
+        })
+
+  return flowCells;
 }
 
 function retDate(v) {
@@ -96,6 +104,7 @@ function retRateString(tuples) {
 export function App() {
   const [periods, setPeriods] = useState();
   const [lastEdit, setLastEdit] = useState();
+  const [flowcells, setFlowCells] = useLocalStorage("flowcells");
   const focused = useWindowFocus();
 
   useEffect(() => {
@@ -115,15 +124,25 @@ export function App() {
   }, [])
 
   useEffect(() => {
-    if(focused) {
-      updatePeriods(lastEdit);
-    }
-    
-  }, [focused])
+    if(focused && shouldUpdatePeriods(lastEdit)) {
+      async function update() {
+        let getPeriods = await api.scry({
+          app: "full-stop",
+          path: "/moon/each",
+        })
 
-  if (periods != undefined) { 
-    // console.log(periods)
-  }
+        setPeriods(getPeriods);
+      }
+      update();
+    }
+  }, [focused, periods])
+  
+  useEffect(() => {
+    if(periods !== undefined) {
+      let newCells = buildFlowCells(periods)
+      setFlowCells(newCells)
+    }
+  }, [periods])
 
   return (
     <main>
@@ -137,16 +156,14 @@ export function App() {
           </tr>
         </thead>
         <tbody>
-          {Object.values(periods || {})
-          .map((each) => {
-            let rateString = retRateString(each.flow.rate)
-
+          {Object.values(flowcells || {})
+          .map((each, index) => {
             return (
-              <tr>
-                <td className='border pr-6'>{ retDate(each?.flow?.edit) }</td>
-                <td className='border pr-6'>{ retDate(each?.start) }</td>
-                <td className='border pr-6'>{ retDate(each?.flow?.stop) }</td>
-                <td className='border pr-6'>{ rateString }</td>
+              <tr key={"tablerow" + index}>
+                <td className='border pr-6'>{ each?.edit }</td>
+                <td className='border pr-6'>{ each?.start }</td>
+                <td className='border pr-6'>{ each?.end }</td>
+                <td className='border pr-6'>{ each?.rate }</td>
               </tr>
             )
           })}
@@ -158,7 +175,6 @@ export function App() {
           <PeriodForm/>
           <RateForm/>
       </div>
-      {/* <button onClick={() => alart()}>check for updates</button> */}
     </main>
   )
 }
