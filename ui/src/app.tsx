@@ -1,10 +1,13 @@
 // @ts-nocheck
 import React, { useEffect, useState } from 'react';
+
+// import 'react-calendar/dist/Calendar.css'
 import { useLocalStorage, useWindowFocus } from './lib';
 import Urbit from '@urbit/http-api';
 import { RateForm } from './components/rateform';
 import { PeriodForm } from './components/periodform';
 import dayjs from 'dayjs';
+import "./css/calendar.css"
 
 const api = new Urbit('', '', window.desk);
 api.ship = window.ship;
@@ -38,7 +41,7 @@ function retActions(scryArray) {
 
 async function shouldUpdatePeriods(prevLast) {
   if (prevLast === undefined) {
-    return
+    return false
   }
 
   let shouldUpdate = false
@@ -123,8 +126,9 @@ export function App() {
     init();
   }, [])
 
-  useEffect(() => {
-    if(focused && shouldUpdatePeriods(lastEdit)) {
+  useEffect(async () => {
+    const shouldUpdate = await shouldUpdatePeriods(lastEdit)
+    if(focused && shouldUpdate) {
       async function update() {
         let getPeriods = await api.scry({
           app: "full-stop",
@@ -171,6 +175,7 @@ export function App() {
       </table>
       <p className='ml-6 my-3'>flow key: <br/> [date] : [rating] ; <br/> '1' is light, '5' is heavy </p>
       <hr/>
+
       <div className='ml-6 my-3 inline-flex'>
           <PeriodForm/>
           <RateForm/>
