@@ -1,10 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useState } from 'react';
-
-// import 'react-calendar/dist/Calendar.css'
 import { useLocalStorage, useWindowFocus } from './lib';
 import Urbit from '@urbit/http-api';
-import { RateForm } from './components/rateform';
 import { PeriodForm } from './components/periodform';
 import dayjs from 'dayjs';
 import "./css/calendar.css"
@@ -12,32 +9,6 @@ import "./css/calendar.css"
 const api = new Urbit('', '', window.desk);
 api.ship = window.ship;
 window.api = api;
-
-function retActions(scryArray) {
-  let actions = []
-  let actionTemplate = (timestamp, type, obj) => { 
-    return {
-      wen: timestamp,
-      [type]: obj
-    }
-  }
-  let timeNow = Math.floor(Date.now() / 1000);
-
-  for (let period of scryArray) {
-    let { flow: { edit, rate, stop}, start } = period;
-
-    actions.push(actionTemplate(timeNow++, 'flow', {wen: start}))
-    actions.push(actionTemplate(timeNow++, 'stop', {wen: stop}))
-    if (rate.length > 0) {
-      for (let tuples of rate) {
-        let [recordDate, rating] = tuples;
-        actions.push(actionTemplate(timeNow++, 'rate', {wen: recordDate, how: rating}))
-      }
-    }
-  }
-
-  return actions
-}
 
 async function shouldUpdatePeriods(prevLast) {
   if (prevLast === undefined) {
@@ -86,7 +57,7 @@ function buildFlowCells(periods) {
 function retDate(v) {
   let rv = 'not recorded';
   if (v !== null) {
-    rv = dayjs(v * 1000).format('DD/MM/YYYY').toString()
+    rv = dayjs.unix(v).format('DD/MM/YYYY')
   }
   
   return rv;
@@ -176,9 +147,8 @@ export function App() {
       <p className='ml-6 my-3'>flow key: <br/> [date] : [rating] ; <br/> '1' is light, '5' is heavy </p>
       <hr/>
 
-      <div className='ml-6 my-3 inline-flex'>
+      <div className='ml-6 my-3'>
           <PeriodForm/>
-          {/* <RateForm/> */}
       </div>
     </main>
   )

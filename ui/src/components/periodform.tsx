@@ -1,13 +1,18 @@
 // @ts-nocheck
 import React, { useEffect, useReducer, useState } from 'react';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc'
+dayjs.extend(utc)
 import FlowDatePicker from './datepicker';
+import RateForm  from './rateform';
 
 function reduceSubmission(state, action) {
   switch(action.type) {
     case 'daterange': {
-      let flowDate = dayjs(action.payload[0])
-      let stopDate = dayjs(action.payload[1])
+      state.flowRatings = action.payload.range;
+      //convert to date string to guarantee both dates are 1 day behind (js quirk). add one day to both
+      let flowDate = dayjs(action.payload.start.toDateString()).add(1, 'day')
+      let stopDate = dayjs(action.payload.end.toDateString()).add(1, 'day')
 
       if (flowDate.isSame(stopDate, 'day')) {
         state.flowStart = flowDate
@@ -20,8 +25,7 @@ function reduceSubmission(state, action) {
       return state;
     }
     case 'finalize': {
-      //collect all the flow ratings and put them into state. change date objects to unix timestamps. etc anything wrong we fall thru
-      state.timeNow = dayjs().unix()
+      //collect all the flow ratings and put them into state. change date objects to unix timestamps
       if (state.flowStop != undefined) {
         state.flowStop = state.flowStop.unix();
       }
@@ -34,33 +38,24 @@ function reduceSubmission(state, action) {
   }
 }
 
-// const submitPeriod = (timestamp, rangep, fstart, fstop) => {
-//   let actions = []
-
-//   actions.push({ wen: timestamp, flow: { wen: fstart } });
-//   timestamp++ 
-  
-//   if (rangep == true)  { 
-//     actions.push({ wen: timestamp, stop: { wen: fstop } })
-//   }
-
-//   console.log(actions)
-
-//   return window.api.poke({
-//       app: "full-stop",
-//       mark: "dot-point",
-//       json: actions,
-//     })//.then(() => location.reload());
-// };
-
 export function PeriodForm() {
-    const initialValue = {flowStart: undefined, flowStop: undefined, flowRatings: undefined, timeNow: undefined}
+    const initialValue = {flowStart: undefined, flowStop: undefined, flowRatings: undefined }
     const [flowObject, dispatch] = useReducer(reduceSubmission, initialValue);
 
+    function handleFlowRatings() {
+
+    }
+
     function handleFlowDates(flowDates) {
+      let dateRange = []
+
+      for (let cur = dayjs(flowDates[0]); cur.isAfter(dayjs(flowDates[1]), 'day') != true; cur = cur.add(1, 'day')) {
+        dateRange.push({date: cur, rate: null})
+      }
+
       dispatch({
         type: 'daterange',
-        payload: flowDates
+        payload: { start: flowDates[0], end: flowDates[1], range: dateRange }
       })
     }
 
@@ -73,17 +68,32 @@ export function PeriodForm() {
         return window.alert('you must submit a date or date range within the last 40 days')
       }
 
-      console.log(flowObject)
+      let actions = [];
+      let timestamp = dayjs().unix()
+
+      actions.push({ wen: timestamp, flow: { wen: flowObject.flowStart } });
+      timestamp++;
+  
+      if (flowObject.flowStop != undefined) {
+        actions.push({ wen: timestamp, stop: { wen: flowObject.flowStop } });
+      }
+
+      console.log(actions)
+
+      return window.api.poke({
+        app: "full-stop",
+        mark: "dot-point",
+        json: actions,
+      }).then(() => location.reload());
     }
 
     return (
       <>
-        <div className='flex-wrap'>
+        <div className=''>
           <FlowDatePicker onDatePick={(v) => handleFlowDates(v)}/>
+          <RateForm dates={flowObject.flowRatings}/>
           <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-3' onClick={handleSubmission}>Submit</button>
-          <button onClick={() => console.log(flowObject)}>whats the flow object</button>
         </div>
-        <br/>
       </>
     )
   }
