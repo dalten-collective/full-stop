@@ -178,7 +178,7 @@ export function App() {
 
       <div className='ml-6 my-3 inline-flex'>
           <PeriodForm/>
-          <RateForm/>
+          {/* <RateForm/> */}
       </div>
     </main>
   )
