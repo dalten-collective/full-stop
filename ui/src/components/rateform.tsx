@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
 
 export default function RateForm({dates = []}) {
@@ -16,14 +16,21 @@ export default function RateForm({dates = []}) {
     //       json: [{ wen: timestamp, rate: {wen: rateDate, how: flowRate}}],
     //     }).then(() => location.reload());
     // };
+
+    // useEffect(() => {
+    //   function getFlowDates() {
+    //     if (dates != []) { setList(dates)}
+    //   }
+    //   getFlowDates();
+    // }, [dates])
   
     return (
-      <>
-        <ul>{dates?.map((e) => {
-          <li key={e.date}> Rating for: {e.date.format('DD/MM/YYYY')} </li>
-          })}
+        <ul className='mt-3'>{dates?.map(item => (
+          <li key={item.date}> 
+            Rating for: {item.date.format('DD/MM/YYYY')} 
+          </li>
+          ))}
         </ul>
-      </>
       // <form onSubmit={event => validateSubmission(event)}>
       //   <label>date:<br/>
       //     <input type="date" className='border mb-3' min={mindate.format('YYYY-MM-DD')} max={maxdate.format('YYYY-MM-DD')} onChange={e => setRatedate(e.target.valueAsNumber / 1000)}/>

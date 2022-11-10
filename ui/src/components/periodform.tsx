@@ -9,20 +9,20 @@ import RateForm  from './rateform';
 function reduceSubmission(state, action) {
   switch(action.type) {
     case 'daterange': {
-      state.flowRatings = action.payload.range;
       //convert to date string to guarantee both dates are 1 day behind (js quirk). add one day to both
-      let flowDate = dayjs(action.payload.start.toDateString()).add(1, 'day')
-      let stopDate = dayjs(action.payload.end.toDateString()).add(1, 'day')
+      let flowDate = dayjs(action.payload.start.toDateString())
+      let stopDate = dayjs(action.payload.end.toDateString())
+      let ratings = action.payload.range;
 
       if (flowDate.isSame(stopDate, 'day')) {
-        state.flowStart = flowDate
-        state.flowStop = undefined
-      } else {
-        state.flowStart = flowDate
-        state.flowStop = stopDate
+        stopDate = undefined;
       }
 
-      return state;
+      return {
+        flowStart: flowDate,
+        flowStop: stopDate,
+        flowRatings: ratings,
+      }
     }
     case 'finalize': {
       //collect all the flow ratings and put them into state. change date objects to unix timestamps
@@ -39,8 +39,12 @@ function reduceSubmission(state, action) {
 }
 
 export function PeriodForm() {
-    const initialValue = {flowStart: undefined, flowStop: undefined, flowRatings: undefined }
-    const [flowObject, dispatch] = useReducer(reduceSubmission, initialValue);
+    const initialState = {flowStart: undefined, flowStop: undefined, flowRatings: undefined }
+    const [flowObject, dispatch] = useReducer(reduceSubmission, initialState);
+
+  useEffect(() => {
+    console.log(flowObject)
+  }, [flowObject])
 
     function handleFlowRatings() {
 
@@ -53,9 +57,11 @@ export function PeriodForm() {
         dateRange.push({date: cur, rate: null})
       }
 
+      // setRange(dateRange);
+
       dispatch({
         type: 'daterange',
-        payload: { start: flowDates[0], end: flowDates[1], range: dateRange }
+        payload: { start: flowDates[0], end: flowDates[1], range: dateRange}
       })
     }
 
@@ -84,7 +90,7 @@ export function PeriodForm() {
         app: "full-stop",
         mark: "dot-point",
         json: actions,
-      }).then(() => location.reload());
+      })//.then(() => location.reload());
     }
 
     return (
