@@ -121,6 +121,9 @@ export function App() {
 
   return (
     <main>
+      <div className='justify-center flex'>
+        <PeriodForm/>
+      </div>
       <table className='table-auto text-left border ml-6 my-3'>
         <thead>
           <tr>
@@ -146,10 +149,6 @@ export function App() {
       </table>
       <p className='ml-6 my-3'>flow key: <br/> [date] : [rating] ; <br/> '1' is light, '5' is heavy </p>
       <hr/>
-
-      <div className='ml-6 my-3'>
-          <PeriodForm/>
-      </div>
     </main>
   )
 }

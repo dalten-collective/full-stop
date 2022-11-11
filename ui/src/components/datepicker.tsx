@@ -15,7 +15,7 @@ export default function FlowDatePicker({onDatePick}) {
 
     return(
         <>
-            <Calendar maxDate={maxdate.toDate()} minDate={mindate.toDate()} selectRange onChange={setFlowDates} />
+            <Calendar maxDate={maxdate.toDate()} minDate={mindate.toDate()} selectRange minDetail='month' onChange={setFlowDates} />
         </>
     )
 }

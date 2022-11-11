@@ -1,11 +1,10 @@
 // @ts-nocheck
-import React, { useEffect, useReducer, useState } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc'
 dayjs.extend(utc)
 import FlowDatePicker from './datepicker';
 import RateForm  from './rateform';
-import RatingSlider from './ratepicker';
 
 function reduceSubmission(state, action) {
   let newState;
@@ -23,11 +22,16 @@ function reduceSubmission(state, action) {
       
       break;
     }
-    case 'reset': {
+    case 'ratingonly': {
       newState = {
         ...state,
-        submit: action.payload.submit,
-        noStart: action.payload.submit
+        ratingOnly: action.payload.ratingOnly
+      }
+      break;
+    }
+    case 'reset': {
+      newState = { 
+        ...action.payload.resetState
       }
       break;
     }
@@ -63,6 +67,7 @@ function reduceSubmission(state, action) {
       let ratings = action.payload.range;
 
       if (flowDate.isSame(stopDate, 'day')) {
+        console.log('fired')
         stopDate = undefined;
       }
 
@@ -81,27 +86,20 @@ function reduceSubmission(state, action) {
 }
 
 export function PeriodForm() {
-    const initialState = {flowStart: undefined, flowStop: undefined, flowRatings: undefined, submit: false, noStart: false }
+    const initialState = {flowStart: undefined, flowStop: undefined, flowRatings: undefined, submit: false, noStart: false, ratingOnly: false }
     const [flowObject, dispatch] = useReducer(reduceSubmission, initialState);
 
-    useEffect(() => {
-      if (!flowObject.submit) {
-        return;
-      }
-
-      if (flowObject.noStart) {
-        dispatch({type: 'reset', payload: {submit: false, noStart: false}})
-        return window.alert('you must submit a date or date range within the last 40 days')
-      }
-
+    function buildActions() {
       let actions = [];
       let timestamp = dayjs().unix()
 
-      actions.push({ wen: timestamp, flow: { wen: flowObject.flowStart } });
-      timestamp++;
-  
-      if (flowObject.flowStop != undefined) {
-        actions.push({ wen: timestamp, stop: { wen: flowObject.flowStop } });
+      if (!flowObject.ratingOnly) {
+        actions.push({ wen: timestamp, flow: { wen: flowObject.flowStart } });
+        timestamp++;
+    
+        if (flowObject.flowStop != undefined) {
+          actions.push({ wen: timestamp, stop: { wen: flowObject.flowStop } });
+        }
       }
 
       let ratings = [];
@@ -114,10 +112,29 @@ export function PeriodForm() {
         ratings.push({ wen: timestamp, rate: {wen: rating.date.unix(), how: rating.rate}})
       })
 
-      if (ratings != []) {
+      if (ratings.length != 0) {
         actions = actions.concat(ratings);
+      } else {
+        if (flowObject.ratingOnly) {
+          dispatch({type: 'reset', payload: { resetState: initialState }})
+          return window.alert('ratings must be selected for a rating-only submission')
+        }
       }
 
+      return actions;
+    }
+
+    useEffect(() => {
+      if (!flowObject.submit) {
+        return;
+      }
+
+      if (flowObject.noStart) {
+        dispatch({type: 'reset', payload: { resetState: initialState }})
+        return window.alert('you must submit a date or date range within the last 40 days')
+      }
+
+      let actions = buildActions()
       // console.log(actions)
 
       return window.api.poke({
@@ -154,12 +171,22 @@ export function PeriodForm() {
       })
     }
 
+    function handleRatingOnly() {
+      dispatch({
+        type: 'ratingonly',
+        payload: {ratingOnly: !flowObject.ratingOnly}
+      })
+    }
+
     return (
       <>
-        <div className=''>
+        <div className='grid gap-1'>
           <FlowDatePicker onDatePick={(v) => handleFlowDates(v)}/>
           <RateForm dates={flowObject.flowRatings} onRatingPick={(v, i) => handleFlowRatings(v, i)}/>
-          <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-3' onClick={handleSubmission}>Submit</button>
+          <div>
+            <button className='bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-3' onClick={handleSubmission}>Submit</button>
+            <label className='select-none'><input type='checkbox' className='ml-3' onChange={handleRatingOnly}/> Submit rating only</label>
+          </div>
         </div>
       </>
     )
