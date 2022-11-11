@@ -5,10 +5,24 @@ import utc from 'dayjs/plugin/utc'
 dayjs.extend(utc)
 import FlowDatePicker from './datepicker';
 import RateForm  from './rateform';
+import RatingSlider from './ratepicker';
 
 function reduceSubmission(state, action) {
   let newState;
   switch(action.type) {
+    case 'rating': {
+      let rating = action.payload.flowRating;
+      let index = action.payload.dateIndex;
+      let ratingsList = state.flowRatings;
+      ratingsList[index].rate = rating;
+
+      newState = {
+        ...state,
+        flowRatings: ratingsList
+      }
+      
+      break;
+    }
     case 'reset': {
       newState = {
         ...state,
@@ -90,6 +104,22 @@ export function PeriodForm() {
         actions.push({ wen: timestamp, stop: { wen: flowObject.flowStop } });
       }
 
+      let ratings = [];
+
+      flowObject.flowRatings.forEach((rating) => {
+        if (rating.rate == null) {
+          return;
+        }
+        timestamp++;
+        ratings.push({ wen: timestamp, rate: {wen: rating.date.unix(), how: rating.rate}})
+      })
+
+      if (ratings != []) {
+        actions = actions.concat(ratings);
+      }
+
+      // console.log(actions)
+
       return window.api.poke({
         app: "full-stop",
         mark: "dot-point",
@@ -97,8 +127,11 @@ export function PeriodForm() {
       }).then(() => location.reload());
     }, [flowObject.submit])
 
-    function handleFlowRatings() {
-
+    function handleFlowRatings(rating, index) {
+      dispatch({
+        type: 'rating',
+        payload: {flowRating: rating, dateIndex: index}
+      })
     }
 
     function handleFlowDates(flowDates) {
@@ -125,7 +158,7 @@ export function PeriodForm() {
       <>
         <div className=''>
           <FlowDatePicker onDatePick={(v) => handleFlowDates(v)}/>
-          <RateForm dates={flowObject.flowRatings}/>
+          <RateForm dates={flowObject.flowRatings} onRatingPick={(v, i) => handleFlowRatings(v, i)}/>
           <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-3' onClick={handleSubmission}>Submit</button>
         </div>
       </>

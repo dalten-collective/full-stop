@@ -1,13 +1,8 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
-import dayjs from 'dayjs';
+import RatingSlider from './ratepicker';
 
-export default function RateForm({dates = []}) {
-    // const [flowRate, setFlowrate] = useState();
-    // const [rateDate, setRatedate] = useState();
-  
-    // let maxdate = dayjs()
-    // let mindate = dayjs().subtract(40, "days");
+export default function RateForm({dates = [], onRatingPick}) {
   
     // const submitFlowrate = (timestamp) => {
     //   return window.api.poke({
@@ -16,32 +11,16 @@ export default function RateForm({dates = []}) {
     //       json: [{ wen: timestamp, rate: {wen: rateDate, how: flowRate}}],
     //     }).then(() => location.reload());
     // };
-
-    // useEffect(() => {
-    //   function getFlowDates() {
-    //     if (dates != []) { setList(dates)}
-    //   }
-    //   getFlowDates();
-    // }, [dates])
   
     return (
-        <ul className='mt-3'>{dates?.map(item => (
-          <li key={item.date}> 
-            Rating for: {item.date.format('DD/MM/YYYY')} 
+      <>
+        <h1 className='mt-3'> Ratings: </h1>
+        <ul className='ml-3'>{dates?.map((item, index) => (
+          <li key={item.date}>
+            Rating for {item.date.format('DD/MM/YYYY')}: <RatingSlider onRating={onRatingPick} index={index}/>
           </li>
           ))}
         </ul>
-      // <form onSubmit={event => validateSubmission(event)}>
-      //   <label>date:<br/>
-      //     <input type="date" className='border mb-3' min={mindate.format('YYYY-MM-DD')} max={maxdate.format('YYYY-MM-DD')} onChange={e => setRatedate(e.target.valueAsNumber / 1000)}/>
-      //   </label>
-      //   <br/>
-      //   <label>flow rate (5 being heavy):<br/>
-      //     <input type="range" className='border mb-3' min={1} max={5} defaultValue={3} onChange={ e => setFlowrate(e.target.valueAsNumber) }/>
-      //   </label>
-      //   <br/>
-      //   <input type="submit" value="record"/>
-      // </form>
-    )
-  
+      </>
+    )  
 }
