@@ -1,8 +1,40 @@
 // @ts-nocheck
 import React from "react"
+import dayjs from 'dayjs'
+import CalendarItem from "./components/calendarItem";
 
-export function Overview() {
-    return (<main>"fuck"</main>)
+export function Overview({data}) {
+    let todaysDate = dayjs();
+    let todaysDay = todaysDate.get('day')
+    let monthDays = todaysDate.daysInMonth();
+    let startOfMonth = todaysDate.startOf('month').day();
+    let squares = [];
+    for (let i = startOfMonth; i > 1; i--) {
+        squares.push(<div key={"pad " + i}></div>)
+    }
+
+    for (let i = 1, todayp = false; i <= monthDays + 1; i++) {
+        if (i == todaysDay) { todayp = true } else { todayp = false}
+        squares.push(<CalendarItem key={i} day={i} current={todayp}/>)
+    }
+
+    return (
+        <main>
+            <div className="justify-center max-w-2xl m-auto">
+                <div className="grid justify-items-center gap-3 grid-cols-7">
+                    {["mon", "tue", "wed", "thu", "fri", "sat", "sun"].map((head) => {
+                        return <div key={"head " + head} className="text-lg font-bold">{head}</div>
+                    })}
+                    {squares}
+                </div>
+            </div>
+        </main>
+        // <main>
+        //     <h1>"fuck"</h1>
+        //     <h2>data:</h2>
+        //     <p>{}</p>
+        // </main>
+    );
 }
 // function buildFlowCells(periods) {
 //     if (periods === undefined) {

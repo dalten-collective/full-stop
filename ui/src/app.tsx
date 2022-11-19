@@ -4,9 +4,6 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useLocalStorage, useWindowFocus } from './lib';
 import Urbit from '@urbit/http-api';
 import { Overview } from './overview';
-import { PeriodForm } from './components/periodform';
-import dayjs from 'dayjs';
-import "./css/calendar.css"
 
 const api = new Urbit('', '', window.desk);
 api.ship = window.ship;
@@ -38,53 +35,45 @@ async function shouldUpdatePeriods(prevLast) {
 }
 
 export function App() {
-  const [periods, setPeriods] = useState();
+  const [periods, setPeriods] = useLocalStorage();
   const [lastEdit, setLastEdit] = useState();
-  const [flowcells, setFlowCells] = useLocalStorage("flowcells");
   const focused = useWindowFocus();
 
-  // useEffect(() => {
-  //   async function init() {
-  //     const getPeriods = await api.scry({
-  //       app: "full-stop",
-  //       path: "/moon/each",
-  //     })
-  //     const getLastEdit = await api.scry({
-  //       app: "full-stop",
-  //       path: "/last"
-  //     })
-  //     setLastEdit(getLastEdit);
-  //     setPeriods(getPeriods);
-  //   }
-  //   init();
-  // }, [])
+  useEffect(() => {
+    async function init() {
+      const getPeriods = await api.scry({
+        app: "full-stop",
+        path: "/moon/each",
+      })
+      const getLastEdit = await api.scry({
+        app: "full-stop",
+        path: "/last"
+      })
+      setLastEdit(getLastEdit);
+      setPeriods(getPeriods);
+    }
+    init();
+  }, [])
 
-  // useEffect(async () => {
-  //   const shouldUpdate = await shouldUpdatePeriods(lastEdit)
-  //   if(focused && shouldUpdate) {
-  //     async function update() {
-  //       let getPeriods = await api.scry({
-  //         app: "full-stop",
-  //         path: "/moon/each",
-  //       })
+  useEffect(async () => {
+    const shouldUpdate = await shouldUpdatePeriods(lastEdit)
+    if(focused && shouldUpdate) {
+      async function update() {
+        let getPeriods = await api.scry({
+          app: "full-stop",
+          path: "/moon/each",
+        })
 
-  //       setPeriods(getPeriods);
-  //     }
-  //     update();
-  //   }
-  // }, [focused, periods])
-  
-  // useEffect(() => {
-  //   if(periods !== undefined) {
-  //     let newCells = buildFlowCells(periods)
-  //     setFlowCells(newCells)
-  //   }
-  // }, [periods])
+        setPeriods(getPeriods);
+      }
+      update();
+    }
+  }, [focused, periods])
 
   return (
     <BrowserRouter basename='/apps/full-stop'>
       <Routes>
-        <Route path="/" element={<Overview/>} />
+        <Route path="/" element={<Overview data={periods}/>} />
       </Routes>
     </BrowserRouter>
   );

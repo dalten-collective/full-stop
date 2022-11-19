@@ -1,8 +1,6 @@
 // @ts-nocheck
 import React, { useEffect, useReducer } from 'react';
 import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc'
-dayjs.extend(utc)
 import FlowDatePicker from './datepicker';
 import RateForm  from './rateform';
 
