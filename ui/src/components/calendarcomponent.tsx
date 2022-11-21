@@ -1,7 +1,8 @@
 // @ts-nocheck
-import React, {useState, useEffect, useReducer} from "react"
+import React, { useReducer } from "react"
 import dayjs from "dayjs"
 import CalendarItem from "./calendarItem"
+import PopupMenu from "./popupmenu";
 
 function reduceSelectionAction(state, action) {
     let newState;
@@ -33,8 +34,6 @@ export default function CalendarComponent() {
     const initState = {currentSelection: todaysDate.date(), spotOnCur: false}
     const [selectionObject, dispatch] = useReducer(reduceSelectionAction, initState)
 
-    let [selectedDate, setSelectedDate] = useState(todaysDate.date());
-    let [spotButtonClicked, setSpotButtonClicked] = useState(false);
     let squares = [];
 
     function handleNewSelection(v) {
@@ -46,14 +45,11 @@ export default function CalendarComponent() {
         dispatch({type: 'spot', payload: { spotCurrent: flipv => !flipv }})
     }
 
-    // squares.push(<CalendarItem key={1} day={1} offset={startOfMonth} highlight={selectedDate} onDateClicked={setSelectedDate} spotState={spotButtonClicked}/>)
     squares.push(<CalendarItem key={1} day={1} offset={startOfMonth} state={selectionObject} onDateClicked={handleNewSelection}/>)
 
     for (let i = 2; i <= monthDays; i++) {
-        // squares.push(<CalendarItem key={i} day={i} highlight={selectedDate} onDateClicked={setSelectedDate} spotState={spotButtonClicked}/>)
         squares.push(<CalendarItem key={i} day={i} state={selectionObject} onDateClicked={handleNewSelection}/>)
     }
-
 
     return (
         <>
@@ -63,9 +59,7 @@ export default function CalendarComponent() {
                 })}
                 {squares}
             </div>
-            <div className="float-right mt-3">
-                <div className="p-3 w-12 h-12 sm:w-20 sm:h-20 bg-gray-100 hover:bg-gray-300 active:bg-gray-500" onClick={(e) => handleSpotClick()}/>
-            </div>
+            <PopupMenu handleSpot={handleSpotClick}/>
         </>
     )
 
