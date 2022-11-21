@@ -7,7 +7,7 @@ export function Overview({data}) {
     return (
         <main>
             <div className="justify-center max-w-2xl m-auto">
-                <h1 className="text-2xl font-bold">Your Overview</h1>
+                <h1 className="text-4xl font-bold">Your Overview</h1>
                 <hr className="mb-2 h-2 bg-gray-900 border-0"/>
                 <CalendarComponent/>
             </div>

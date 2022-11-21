@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, {useState, useEffect} from "react"
 
-export default function CalendarItem({state, offset, day, onDateClicked}) {
+export default function CalendarItem({state, day, onDateClicked}) {
     let cSel = state.currentSelection;
     let spotState = state.spotOnCur;
 
@@ -19,9 +19,8 @@ export default function CalendarItem({state, offset, day, onDateClicked}) {
         setHighlight(v);
     }, [cSel])
 
-    let offsetStr = (offset ? `col-start-${offset} ` : '');
     let highlightStr = ( highlight ? 'border-blue-300 ' : '');
-    let styleStr = "h-12 w-12 sm:w-20 sm:h-20 hover:bg-gray-200 border-2 px-1 " + highlightStr + offsetStr;
+    let styleStr = "h-12 w-12 sm:w-20 sm:h-20 hover:bg-gray-200 border-2 px-1 " + highlightStr;
 
     return (
         <div key={day} className={styleStr} onClick={(e) => onDateClicked(day)}>

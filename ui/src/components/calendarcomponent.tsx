@@ -29,7 +29,6 @@ function reduceSelectionAction(state, action) {
 export default function CalendarComponent() {
     let todaysDate = dayjs();
     let monthDays = todaysDate.daysInMonth();
-    let startOfMonth = todaysDate.startOf('month').day();
 
     const initState = {currentSelection: todaysDate.date(), spotOnCur: false}
     const [selectionObject, dispatch] = useReducer(reduceSelectionAction, initState)
@@ -45,7 +44,11 @@ export default function CalendarComponent() {
         dispatch({type: 'spot', payload: { spotCurrent: flipv => !flipv }})
     }
 
-    squares.push(<CalendarItem key={1} day={1} offset={startOfMonth} state={selectionObject} onDateClicked={handleNewSelection}/>)
+    //frontload first week
+    for (let i = todaysDate.startOf('month').day(); i != 1; i--) {
+        squares.push(<div/>)
+    }
+    squares.push(<CalendarItem key={1} day={1} state={selectionObject} onDateClicked={handleNewSelection}/>)
 
     for (let i = 2; i <= monthDays; i++) {
         squares.push(<CalendarItem key={i} day={i} state={selectionObject} onDateClicked={handleNewSelection}/>)
