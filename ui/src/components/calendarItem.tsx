@@ -1,9 +1,14 @@
 // @ts-nocheck
 import React, {useState, useEffect} from "react"
 
-export default function CalendarItem({day, highlight, offset, onDateClicked, spotState}) {
-    let offsetStr = (offset != undefined ? `col-start-${offset}` : '')
-    let highlightStr = ( highlight == day ? 'border-blue-300' : '')
+//export default function CalendarItem({day, highlight, offset, onDateClicked, spotState}) {
+export default function CalendarItem({state, offset, day, onDateClicked}) {
+    let highlight = state.currentSelection;
+    let spotState = state.spotOnCur;
+
+    let offsetStr = (offset ? `col-start-${offset} ` : '');
+    let highlightStr = ( highlight == day ? 'border-blue-300 ' : '');
+    let styleStr = "h-12 w-12 sm:w-20 sm:h-20 hover:bg-gray-200 border-2 px-1 " + highlightStr + offsetStr;
 
     const [localSpotState, setLocalSpotState] = useState(false)
 
@@ -14,7 +19,7 @@ export default function CalendarItem({day, highlight, offset, onDateClicked, spo
     }, [spotState])
 
     return (
-        <div key={day} className={`h-12 w-12 sm:w-20 sm:h-20 hover:bg-gray-200 border-2 px-1 ${offsetStr} ${highlightStr}`} onClick={(e) => onDateClicked(day)}>
+        <div key={day} className={styleStr} onClick={(e) => onDateClicked(day)}>
             <div className="grid">
                 <p className="text-xs sm:text-lg select-none">{day}</p>
                 {localSpotState == true ? 
