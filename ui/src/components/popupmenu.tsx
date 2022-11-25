@@ -1,22 +1,18 @@
 //@ts-nocheck
 import React, {useState} from "react";
-import ClickAwayListener from "react-click-away-listener";
+import {Menu, MenuItem, MenuButton} from '@szhsin/react-menu'
+import '@szhsin/react-menu/dist/index.css';
+import '@szhsin/react-menu/dist/transitions/slide.css';
 
 export default function PopupMenu({handleSpot}) {
-    const [popup, setPopup] = useState(false);
-    let buttonStyle = "w-20 px-2 h-auto bg-gray-100 hover:bg-gray-300 active:bg-gray-500"
+    let buttonStyle = 'text-4xl pb-1 font-bold w-20 h-20 border-2 hover:bg-gray-100 active:bg-gray-500'
     return (
         <div className="float-right mt-3">
-            {popup && (
-                <ClickAwayListener onClickAway={() => {setPopup(false)}}>
-                    <div className="grid">
-                        <button className={buttonStyle} onClick={(e) => handleSpot()}>Spot</button>
-                        <button className={buttonStyle}>Dummy</button>
-                        <button className={buttonStyle}>Dummy</button>
-                    </div>
-                </ClickAwayListener>
-            )}
-            <button className="font-bold text-4xl border-2 w-20 h-20" onClick={() => {setPopup(true)}}>+</button>
+            <Menu menuButton={<MenuButton className={buttonStyle}>+</MenuButton>} arrow  direction='top' transition>
+                <MenuItem onClick={(e) => handleSpot()}>Spot</MenuItem>
+                <MenuItem>Dummy</MenuItem>
+                <MenuItem>Dummy</MenuItem>
+            </Menu>
         </div>
     )
 }

@@ -20,14 +20,14 @@ export default function CalendarItem({state, day, onDateClicked}) {
     }, [cSel])
 
     let highlightStr = ( highlight ? 'border-blue-300 ' : '');
-    let styleStr = "h-12 w-12 sm:w-20 sm:h-20 hover:bg-gray-200 border-2 px-1 " + highlightStr;
+    let styleStr = "h-12 w-12 md:w-20 md:h-20 hover:bg-gray-200 border-2 px-1 " + highlightStr;
 
     return (
         <div key={day} className={styleStr} onClick={(e) => onDateClicked(day)}>
             <div className="grid">
-                <p className="text-xs sm:text-lg select-none">{day}</p>
+                <p className="text-xs md:text-lg select-none">{day}</p>
                 {localSpotState == true ? 
-                    <div className="rounded-full bg-black w-2 h-2 sm:w-5 sm:h-5 justify-self-center"/> 
+                    <div className="rounded-full bg-black w-3 h-3 md:w-5 md:h-5 justify-self-center"/> 
                     : <div/>
                 }
             </div>

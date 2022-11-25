@@ -10,6 +10,7 @@
     "tsc": "tsc --noEmit"
   },
   "dependencies": {
+    "@szhsin/react-menu": "^3.3.0",
     "@urbit/api": "^2.0.0",
     "@urbit/http-api": "^2.0.0",
     "dayjs": "^1.11.5",
