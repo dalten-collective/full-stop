@@ -1,57 +1,79 @@
 // @ts-nocheck
-import React, { useReducer } from "react"
+import React, { useState, useEffect } from "react"
 import dayjs from "dayjs"
-import CalendarItem from "./calendarItem"
+import CalendarCell from "./calendarCell"
 import PopupMenu from "./popupmenu";
-
-function reduceSelectionAction(state, action) {
-    let newState;
-    switch (action.type) {
-        case 'spot': {
-            newState = {
-                ...state,
-                spotOnCur: action.payload.spotCurrent
-            }
-            break;
-        }
-        case 'switch': {
-            newState = {
-                ...state,
-                currentSelection: action.payload.newDate
-            }
-            break;
-        }
-    }
-
-    return newState;
-}
 
 export default function CalendarComponent() {
     let todaysDate = dayjs();
     let monthDays = todaysDate.daysInMonth();
+    let [cells, setCells] = useState([]);
+    let [currentSelection, setSelection] = useState(todaysDate.date() - 1)
 
-    const initState = {currentSelection: todaysDate.date(), spotOnCur: false}
-    const [selectionObject, dispatch] = useReducer(reduceSelectionAction, initState)
+    let pad = [];
+    for (let i = todaysDate.startOf('month').day(); i != 1; i--) {
+        pad.push(<div key={"pad-" + i}/>);
+    }
 
-    let squares = [];
+    useEffect(() => {
+        function init() {
+            let month = []
+            for (let i = 0; i < monthDays; i++) {
+                month.push({spot: false, selected: false})
+            }
+    
+            let selectTodaysDate = month.map((cell, i) => {
+                if ((i + 1) === todaysDate.date()) {
+                    return {
+                        ...cell,
+                        selected: true
+                    }
+                } else {
+                    return cell
+                }
+            })
+            setCells(selectTodaysDate);
+        }
+        init();
+    }, [])
 
-    function handleNewSelection(v) {
-        dispatch({type: 'switch', payload: { newDate: v }})
+    function handleNewSelection(i) {
+        let selectDeselect = cells.map((cell, ind) => {
+            if (ind === i && cell.selected !== true) {
+                setSelection(i);
+                return {
+                    ...cell,
+                    selected: true
+                }
+            } else if (ind !== i && cell.selected === true) {
+                return {
+                    ...cell,
+                    selected: false
+                }
+            } else {
+                return cell;
+            }
+        })
+        setCells(selectDeselect);
     }
 
     function handleSpotClick() {
-        let flipv = selectionObject.spotOnCur;
-        dispatch({type: 'spot', payload: { spotCurrent: flipv => !flipv }})
-    }
-
-    //frontload first week
-    for (let i = todaysDate.startOf('month').day(); i != 1; i--) {
-        squares.push(<div/>)
-    }
-    squares.push(<CalendarItem key={1} day={1} state={selectionObject} onDateClicked={handleNewSelection}/>)
-
-    for (let i = 2; i <= monthDays; i++) {
-        squares.push(<CalendarItem key={i} day={i} state={selectionObject} onDateClicked={handleNewSelection}/>)
+        let spotUnspot = cells.map((cell, ind) => {
+            if (ind === currentSelection && cell.spot !== true) {
+                return {
+                    ...cell,
+                    spot: true
+                }
+            } else if (ind === currentSelection && cell.spot === true) {
+                return {
+                    ...cell,
+                    spot: false
+                }
+            } else {
+                return cell;
+            }
+        })
+        setCells(spotUnspot);
     }
 
     return (
@@ -60,7 +82,10 @@ export default function CalendarComponent() {
                 {["mon", "tue", "wed", "thu", "fri", "sat", "sun"].map((head) => {
                     return <div key={"head-" + head} className="sm:text-lg text-m font-bold">{head}</div>
                 })}
-                {squares}
+                {pad}
+                {cells.map((cell, i)=>{
+                    return <CalendarCell key={"cell-" + i} highlight={cell.selected} spot={cell.spot} day={i} onDateClicked={handleNewSelection}/>
+                })}
             </div>
             <PopupMenu handleSpot={handleSpotClick}/>
         </>
