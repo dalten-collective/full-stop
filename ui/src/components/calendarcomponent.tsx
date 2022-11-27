@@ -4,7 +4,7 @@ import dayjs from "dayjs"
 import CalendarCell from "./calendarCell"
 import PopupMenu from "./popupmenu";
 
-export default function CalendarComponent() {
+export default function CalendarComponent({periodData}) {
     let todaysDate = dayjs();
     let monthDays = todaysDate.daysInMonth();
     let [cells, setCells] = useState([]);
@@ -16,13 +16,35 @@ export default function CalendarComponent() {
     }
 
     useEffect(() => {
+        function isWithinPeriod(thisDate) {
+            let p = false
+            if(thisDate <= periodData.periodStart.date() || thisDate >= periodData.periodStop.date()) {
+                p = true
+            }
+
+            return p
+        }
+
         function init() {
             let month = []
+            let initial = {spot: false, selected: false, periodStart: false, inPeriod: false, periodEnd: false}
+
             for (let i = 0; i < monthDays; i++) {
-                month.push({spot: false, selected: false})
+                month.push(initial)
             }
+
+            let periodDaysMarked = month.map((cell, i) => {
+                if (isWithinPeriod(i + 1)) {
+                    return {
+                        ...cell,
+                        inPeriod: true
+                    }
+                } else {
+                    return cell;
+                }
+            });
     
-            let selectTodaysDate = month.map((cell, i) => {
+            let selectTodaysDate = periodDaysMarked.map((cell, i) => {
                 if ((i + 1) === todaysDate.date()) {
                     return {
                         ...cell,
@@ -31,10 +53,13 @@ export default function CalendarComponent() {
                 } else {
                     return cell
                 }
-            })
+            });
             setCells(selectTodaysDate);
         }
-        init();
+
+        if(periodData.length != 0) {
+            init();
+        }
     }, [])
 
     function handleNewSelection(i) {
@@ -90,5 +115,4 @@ export default function CalendarComponent() {
             <PopupMenu handleSpot={handleSpotClick}/>
         </>
     )
-
 }
