@@ -11,11 +11,11 @@ export function Overview({data}) {
     useEffect(() => {
         function init() {
             let parsed = data.map((e) => {
-                let start = dayjs(e.start);
-                let stop = dayjs(e.flow.stop);
+                let start = dayjs.unix(e.start);
+                let stop = dayjs.unix(e.flow.stop);
 
                 let rates = e.flow.rate.map((e) => {
-                    let date = dayjs(e[0])
+                    let date = dayjs.unix(e[0])
                     let rate = e[1]
                     return {ratingDate: date, rating: rate}
                 })

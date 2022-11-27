@@ -4,7 +4,7 @@ import dayjs from "dayjs"
 import CalendarCell from "./calendarCell"
 import PopupMenu from "./popupmenu";
 
-export default function CalendarComponent({periodData}) {
+function CalendarComponent({periodData}) {
     let todaysDate = dayjs();
     let monthDays = todaysDate.daysInMonth();
     let [cells, setCells] = useState([]);
@@ -16,15 +16,6 @@ export default function CalendarComponent({periodData}) {
     }
 
     useEffect(() => {
-        function isWithinPeriod(thisDate) {
-            let p = false
-            if(thisDate <= periodData.periodStart.date() || thisDate >= periodData.periodStop.date()) {
-                p = true
-            }
-
-            return p
-        }
-
         function init() {
             let month = []
             let initial = {spot: false, selected: false, periodStart: false, inPeriod: false, periodEnd: false}
@@ -32,19 +23,8 @@ export default function CalendarComponent({periodData}) {
             for (let i = 0; i < monthDays; i++) {
                 month.push(initial)
             }
-
-            let periodDaysMarked = month.map((cell, i) => {
-                if (isWithinPeriod(i + 1)) {
-                    return {
-                        ...cell,
-                        inPeriod: true
-                    }
-                } else {
-                    return cell;
-                }
-            });
     
-            let selectTodaysDate = periodDaysMarked.map((cell, i) => {
+            let selectToday = month.map((cell, i) => {
                 if ((i + 1) === todaysDate.date()) {
                     return {
                         ...cell,
@@ -54,13 +34,38 @@ export default function CalendarComponent({periodData}) {
                     return cell
                 }
             });
-            setCells(selectTodaysDate);
+
+            setCells(selectToday);
         }
 
-        if(periodData.length != 0) {
-            init();
-        }
+        init();
     }, [])
+
+    useEffect(() => {
+        function isWithinPeriod(thisDate) {
+            let p = false
+            if(thisDate >= periodData[0].periodStart.date() && thisDate <= periodData[0].periodStop.date()) {
+                p = true
+            }
+
+            return p
+        }
+
+        if (cells.length != 0 && periodData.length != 0) {
+            let markFlowDays = cells.map((cell, i) => {
+                if (isWithinPeriod(i + 1)) {
+                    return {
+                        ...cell,
+                        inPeriod: true
+                    }
+                } else {
+                    return cell;
+                }
+            });
+
+            setCells(markFlowDays);
+        }
+    }, [periodData])
 
     function handleNewSelection(i) {
         let selectDeselect = cells.map((cell, ind) => {
@@ -109,10 +114,12 @@ export default function CalendarComponent({periodData}) {
                 })}
                 {pad}
                 {cells.map((cell, i)=>{
-                    return <CalendarCell key={"cell-" + i} highlight={cell.selected} spot={cell.spot} day={i} onDateClicked={handleNewSelection}/>
+                    return <CalendarCell key={"cell-" + i} highlight={cell.selected} spot={cell.spot} periodDay={cell.inPeriod} day={i} onDateClicked={handleNewSelection}/>
                 })}
             </div>
             <PopupMenu handleSpot={handleSpotClick}/>
         </>
     )
 }
+
+export default CalendarComponent;
