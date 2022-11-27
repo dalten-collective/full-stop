@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useLocalStorage, useWindowFocus } from './lib';
 import Urbit from '@urbit/http-api';
 import { Overview } from './overview';
+import { Details } from './details';
 
 const api = new Urbit('', '', window.desk);
 api.ship = window.ship;
@@ -71,9 +72,10 @@ export function App() {
   }, [focused, periods])
 
   return (
-    <BrowserRouter basename='/apps/full-stop'>
+    <BrowserRouter basename='/apps/full-stop/'>
       <Routes>
         <Route path="/" element={<Overview data={periods}/>} />
+        <Route path="/details" element={<Details data={periods}/>} />
       </Routes>
     </BrowserRouter>
   );
