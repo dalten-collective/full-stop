@@ -15,6 +15,7 @@ function CalendarComponent({periodData}) {
         pad.push(<div key={"pad-" + i}/>);
     }
 
+    //init the calendar and select the date
     useEffect(() => {
         function init() {
             let month = []
@@ -41,6 +42,7 @@ function CalendarComponent({periodData}) {
         init();
     }, [])
 
+    //only if we have data do we further manipulate the calendar
     useEffect(() => {
         function isWithinPeriod(thisDate) {
             let p = false
@@ -51,7 +53,7 @@ function CalendarComponent({periodData}) {
             return p
         }
 
-        if (cells.length != 0 && periodData.length != 0) {
+        function setCellState() {
             let markFlowDays = cells.map((cell, i) => {
                 if (isWithinPeriod(i + 1)) {
                     return {
@@ -63,7 +65,28 @@ function CalendarComponent({periodData}) {
                 }
             });
 
-            setCells(markFlowDays);
+            let markStartEnd = markFlowDays.map((cell, i) => {
+                if(periodData[0].periodStart.date() === i + 1) {
+                    return {
+                        ...cell,
+                        periodStart: true
+                    }
+                } else if (periodData[0].periodStop.date() === i + 1) {
+                    return {
+                        ...cell,
+                        periodEnd: true
+                    }
+                } else {
+                    return cell
+                }
+            });
+
+            return markStartEnd;
+        }
+
+        if (cells.length != 0 && periodData.length != 0) {
+            let cellState = setCellState()
+            setCells(cellState);
         }
     }, [periodData])
 
@@ -114,7 +137,7 @@ function CalendarComponent({periodData}) {
                 })}
                 {pad}
                 {cells.map((cell, i)=>{
-                    return <CalendarCell key={"cell-" + i} highlight={cell.selected} spot={cell.spot} periodDay={cell.inPeriod} day={i} onDateClicked={handleNewSelection}/>
+                    return <CalendarCell key={"cell-" + i} cellState={cell} day={i} onDateClicked={handleNewSelection}/>
                 })}
             </div>
             <PopupMenu handleSpot={handleSpotClick}/>
