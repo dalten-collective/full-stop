@@ -77,7 +77,7 @@ export function App() {
       <Routes>
         <Route path="/" element={<Overview data={periods}/>} />
         <Route path="/details" element={<Details data={periods}/>} />
-        <Route path="/options" element={<Options data={}/>} />
+        <Route path="/options" element={<Options/>} />
       </Routes>
     </BrowserRouter>
   );

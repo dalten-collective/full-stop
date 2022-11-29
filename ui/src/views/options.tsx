@@ -2,7 +2,7 @@
 import React from "react"
 import NavBar from "../components/navbar"
 
-export function Details({data}) {
+export function Options({data}) {
     return (
         <main>
             <NavBar/>

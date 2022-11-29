@@ -23,6 +23,13 @@ export default function NavBar() {
                     Details
                     </NavLink>
                 </li>
+                <li className="px-6">
+                    <NavLink to="/options" className={
+                        ({isActive})=> isActive ? activeClassName : inactiveClassName
+                    }>
+                    Options
+                    </NavLink>
+                </li>
             </ul>
         </div>
     )
