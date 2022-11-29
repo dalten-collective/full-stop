@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, {useEffect, useState} from "react"
-import CalendarComponent from "./components/calendarcomponent";
-import NavBar from "./components/navbar";
+import CalendarComponent from "../components/calendarcomponent";
+import NavBar from "../components/navbar";
 import dayjs from "dayjs";
 import { useEffect } from "react";
 

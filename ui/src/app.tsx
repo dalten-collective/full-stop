@@ -3,8 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useLocalStorage, useWindowFocus } from './lib';
 import Urbit from '@urbit/http-api';
-import { Overview } from './overview';
-import { Details } from './details';
+import { Overview } from './views/overview';
+import { Details } from './views/details';
+import { Options } from './views/options';
 
 const api = new Urbit('', '', window.desk);
 api.ship = window.ship;
@@ -76,6 +77,7 @@ export function App() {
       <Routes>
         <Route path="/" element={<Overview data={periods}/>} />
         <Route path="/details" element={<Details data={periods}/>} />
+        <Route path="/options" element={<Options data={}/>} />
       </Routes>
     </BrowserRouter>
   );
