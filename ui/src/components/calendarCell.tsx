@@ -19,7 +19,7 @@ export default function CalendarCell({ cellState, day, onDateClicked}) {
                     : <div/>
                 }
                 {cellState.periodEnd == true ?
-                    <div className="bg-red-700 w-3 h-3 md:w-5 md:h-5 justify-self-center"/>
+                    <div className="border-4 border-red-700 w-3 h-3 md:w-5 md:h-5 justify-self-center"/>
                     : <div/>
                 }
             </div>

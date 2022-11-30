@@ -3,7 +3,7 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 
 export default function NavBar() {
-    let inactiveClassName = "text-3xl font-semibold underline text-red-500 hover:text-red-700";
+    let linkClassName = "text-3xl font-semibold underline text-red-500 hover:text-red-700";
     let activeClassName = "text-3xl font-semibold hover:no-underline cursor-default";
     
     return (
@@ -11,21 +11,21 @@ export default function NavBar() {
             <ul className="flex flex-row pl-6">
                 <li className="px-6">
                     <NavLink to="/" className={
-                        ({isActive}) => isActive ? activeClassName : inactiveClassName
+                        ({isActive}) => isActive ? activeClassName : linkClassName
                     }>
                     Overview
                     </NavLink>
                 </li>
                 <li className="px-6">
                     <NavLink to="/details" className={
-                        ({isActive})=> isActive ? activeClassName : inactiveClassName
+                        ({isActive})=> isActive ? activeClassName : linkClassName
                     }>
                     Details
                     </NavLink>
                 </li>
                 <li className="px-6">
                     <NavLink to="/options" className={
-                        ({isActive})=> isActive ? activeClassName : inactiveClassName
+                        ({isActive})=> isActive ? activeClassName : linkClassName
                     }>
                     Options
                     </NavLink>

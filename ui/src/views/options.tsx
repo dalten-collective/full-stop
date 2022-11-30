@@ -6,7 +6,7 @@ export function Options({data}) {
     return (
         <main>
             <NavBar/>
-            <p>fuck options</p>
+            <p>placeholder</p>
             {/* <p>{JSON.stringify(data)}</p> */}
         </main>
         )
