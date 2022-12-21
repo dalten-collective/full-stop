@@ -554,7 +554,7 @@
     ::
     ++  spot
       ^-  json
-      ?.  =(~ spot.state)  ~
+      ?:  =(~ spot.state)  ~
       :-  %a
       (turn ~(tap in spot.state) |=(wen=^time (sect wen)))
     ::  +rain: state->json, mucosal consistencies
