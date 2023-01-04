@@ -21,6 +21,19 @@ function buildPeriodCells(periods) {
   
     return flowCells;
   }
+
+function buildSpotCells(spots) {
+    if (spots === undefined) {
+        return
+    }
+
+    let spotCells = []
+    Object.values(spots || {})
+          .map((each) => {
+            spotCells.push(retDate(each));
+          })
+    return spotCells;
+}
   
   function retDate(v) {
     let rv = 'not recorded';
@@ -45,6 +58,7 @@ function buildPeriodCells(periods) {
 
 export function DetailComponent({data}) {
     let [periodTablecells, setPeriodTable] = useState([]);
+    let [spotTablecells, setSpotTable] = useState([]);
     let [currentDetails, setCurrentDetails] = useState('periods')
 
     function handleSelection(value) {
@@ -61,7 +75,7 @@ export function DetailComponent({data}) {
             // fields: ['edit', 'start', 'end', 'rate']
         },
         spotting: {
-            headers: ['recorded', 'date']
+            headers: ['recorded spot']
         },
         sex: {
             headers: ['recorded', 'date']
@@ -69,7 +83,8 @@ export function DetailComponent({data}) {
     }
 
     useEffect(() => {
-        setPeriodTable(buildPeriodCells(data))
+        setPeriodTable(buildPeriodCells(data.periods))
+        setSpotTable(buildSpotCells(data.spots))
     }, [data])
 
     return (
@@ -84,7 +99,7 @@ export function DetailComponent({data}) {
                     </tr>
                 </thead>
                 <tbody>
-                    {Object.values(periodTablecells || {})
+                    {/* {Object.values(periodTablecells || {})
                     .map((each, index) => {
                         if (currentDetails == 'periods') {
                             return (
@@ -102,8 +117,15 @@ export function DetailComponent({data}) {
                                     <td className='border pr-6'>{ each.rate }</td>
                                 </tr>
                             )
+                        } else if (currentDetails == 'spotting') {
+                            return (
+                                <tr key={"tablerow" + index}>
+                                    <td className='border pr-6'>{index}</td>
+                                    <td className='border pr-6'>{index}</td>
+                                </tr>
+                            )
                         }
-                    })}
+                    })} */}
                 </tbody>
             </table>
         </div>

@@ -38,6 +38,7 @@ async function shouldUpdatePeriods(prevLast) {
 
 export function App() {
   const [periods, setPeriods] = useLocalStorage();
+  const [spots, setSpots] = useLocalStorage();
   const [lastEdit, setLastEdit] = useState();
   const focused = useWindowFocus();
 
@@ -47,10 +48,15 @@ export function App() {
         app: "full-stop",
         path: "/moon/each",
       })
+      const getSpots = await api.scry({
+        app: "full-stop",
+        path: "/spot"
+      })
       const getLastEdit = await api.scry({
         app: "full-stop",
         path: "/last"
       })
+      setSpots(getSpots);
       setLastEdit(getLastEdit);
       setPeriods(getPeriods);
     }
@@ -65,18 +71,23 @@ export function App() {
           app: "full-stop",
           path: "/moon/each",
         })
+        let getSpots = await api.scry({
+          app: "full-stop",
+          path: "/spot"
+        })
 
         setPeriods(getPeriods);
+        setSpots(getSpots);
       }
       update();
     }
-  }, [focused, periods])
+  }, [focused, periods, spots])
 
   return (
     <BrowserRouter basename='/apps/full-stop/'>
       <Routes>
-        <Route path="/" element={<Overview data={periods}/>} />
-        <Route path="/details" element={<Details data={periods}/>} />
+        <Route path="/" element={<Overview data={{periods: periods, spots: spots}}/>} />
+        <Route path="/details" element={<Details data={{periods: periods, spots: spots}}/>} />
         <Route path="/options" element={<Options/>} />
       </Routes>
     </BrowserRouter>

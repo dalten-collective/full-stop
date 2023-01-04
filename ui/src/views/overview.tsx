@@ -10,7 +10,7 @@ export function Overview({data}) {
     
     useEffect(() => {
         function init() {
-            let parsed = data.map((e) => {
+            let parsed = data.periods.map((e) => {
                 let start = dayjs.unix(e.start);
                 let stop = dayjs.unix(e.flow.stop);
 
