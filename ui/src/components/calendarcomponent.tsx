@@ -5,7 +5,6 @@ import CalendarCell from "./calendarCell"
 import PopupMenu from "./popupmenu";
 
 function CalendarComponent({periodData}) {
-    console.log(periodData)
     let todaysDate = dayjs();
     let monthDays = todaysDate.daysInMonth();
     let lastElement = periodData.length - 1 //always the last element
