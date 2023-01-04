@@ -5,6 +5,7 @@ import CalendarCell from "./calendarCell"
 import PopupMenu from "./popupmenu";
 
 function CalendarComponent({periodData}) {
+    console.log(periodData)
     let todaysDate = dayjs();
     let monthDays = todaysDate.daysInMonth();
     let lastElement = periodData.length - 1 //always the last element
@@ -12,7 +13,9 @@ function CalendarComponent({periodData}) {
     let [currentSelection, setSelection] = useState(todaysDate.date() - 1)
 
     let pad = [];
-    for (let i = todaysDate.startOf('month').day(); i != 1; i--) {
+    let startofMonth = todaysDate.startOf('month').day();
+    if (startofMonth === 0) { startofMonth = 6 }
+    for (let i = 0; i != startofMonth; i++) {
         pad.push(<div key={"pad-" + i}/>);
     }
 
