@@ -37,8 +37,8 @@ async function shouldUpdatePeriods(prevLast) {
 }
 
 export function App() {
-  const [periods, setPeriods] = useLocalStorage();
-  const [spots, setSpots] = useLocalStorage();
+  const [periods, setPeriods] = useLocalStorage('perioddata');
+  const [spots, setSpots] = useLocalStorage('spotdata');
   const [lastEdit, setLastEdit] = useState();
   const focused = useWindowFocus();
 

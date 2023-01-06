@@ -6,11 +6,19 @@ import dayjs from "dayjs";
 import { useEffect } from "react";
 
 export function Overview({data}) {
-    const [calendarState, setCalendarState] = useState([])
-    
+    const [calendarState, setCalendarState] = useState({})
+
     useEffect(() => {
         function init() {
-            let parsed = data.periods.map((e) => {
+            let todaysDate = dayjs();
+            let monthSpotData = data.spots.filter((e) => {
+                let spotDate = dayjs.unix(e);
+                if (spotDate.isSame(todaysDate, 'year') && spotDate.isSame(todaysDate, 'month')) {
+                    return spotDate;
+                }
+            })
+
+            let periodData = data.periods.map((e) => {
                 let start = dayjs.unix(e.start);
                 let stop = dayjs.unix(e.flow.stop);
 
@@ -21,8 +29,14 @@ export function Overview({data}) {
                 })
                 return { periodStart: start, periodStop: stop, ratings: rates}
             })
+            
+            let monthPeriodData = {}
+            let lastPeriod = periodData[periodData.length - 1]
+            if(lastPeriod.periodStart.isSame(todaysDate, 'month')) {
+                monthPeriodData = lastPeriod;
+            }
 
-            setCalendarState(parsed);
+            setCalendarState({periodData: monthPeriodData, spotData: monthSpotData});
         }
         
         if(data != undefined) {
@@ -36,7 +50,7 @@ export function Overview({data}) {
             <div className="justify-center max-w-2xl m-auto">
                 <h1 className="text-4xl font-bold">Your Overview</h1>
                 <hr className="mb-2 h-2 bg-gray-900 border-0"/>
-                <CalendarComponent periodData={calendarState}/>
+                <CalendarComponent data={calendarState}/>
             </div>
         </main>
     )

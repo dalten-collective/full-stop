@@ -4,10 +4,9 @@ import dayjs from "dayjs"
 import CalendarCell from "./calendarCell"
 import PopupMenu from "./popupmenu";
 
-function CalendarComponent({periodData}) {
+function CalendarComponent({data}) {
     let todaysDate = dayjs();
     let monthDays = todaysDate.daysInMonth();
-    let lastElement = periodData.length - 1 //always the last element
     let [cells, setCells] = useState([]);
     let [currentSelection, setSelection] = useState(todaysDate.date() - 1)
 
@@ -49,7 +48,7 @@ function CalendarComponent({periodData}) {
     useEffect(() => {
         function isWithinPeriod(thisDate) {
             let p = false
-            if(thisDate >= periodData[lastElement].periodStart.date() && thisDate <= periodData[lastElement].periodStop.date()) {
+            if(thisDate >= data.periodData.periodStart.date() && thisDate <= data.periodData.periodStop.date()) {
                 p = true
             }
 
@@ -58,6 +57,10 @@ function CalendarComponent({periodData}) {
 
         function setCellState() {
             let markFlowDays = cells.map((cell, i) => {
+                if(Object.keys(data.periodData).length === 0) {
+                    return cell
+                }
+                
                 if (isWithinPeriod(i + 1)) {
                     return {
                         ...cell,
@@ -69,12 +72,16 @@ function CalendarComponent({periodData}) {
             });
 
             let markStartEnd = markFlowDays.map((cell, i) => {
-                if(periodData[lastElement].periodStart.date() === i + 1) {
+                if(Object.keys(data.periodData).length === 0) {
+                    return cell
+                }
+
+                if(data.periodData.periodStart.date() === i + 1) {
                     return {
                         ...cell,
                         periodStart: true
                     }
-                } else if (periodData[lastElement].periodStop.date() === i + 1) {
+                } else if (data.periodData.periodStop.date() === i + 1) {
                     return {
                         ...cell,
                         periodEnd: true
@@ -84,14 +91,31 @@ function CalendarComponent({periodData}) {
                 }
             });
 
-            return markStartEnd;
+            let markSpotDays = markStartEnd.map((cell, i) => {
+                for(let spot of data.spotData) {
+                    let date = dayjs.unix(spot).date()
+                    if(date === i + 1) {
+                        return {
+                            ...cell,
+                            spot: true
+                        }
+                    } else {
+                        console.log('fired' + date + (i + 1))
+                        return cell
+                    }
+                }
+            })
+
+            return markSpotDays;
         }
         // do we have data, a month representation to alter and is the last recorded piece of data in this month?
-        if (cells.length != 0 && periodData.length != 0 && todaysDate.isSame(periodData[lastElement].periodStart, 'month')) {
-            let cellState = setCellState()
-            setCells(cellState);
+        if (typeof(data) != 'undefined' && cells.length != 0) {
+            if(data.periodData != {} && data.spotData.length > 0) {
+                let cellState = setCellState()
+                setCells(cellState);
+            }
         }
-    }, [periodData])
+    }, [data])
 
     function handleNewSelection(i) {
         let selectDeselect = cells.map((cell, ind) => {
