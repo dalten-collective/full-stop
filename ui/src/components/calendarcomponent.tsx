@@ -60,15 +60,8 @@ function CalendarComponent({data}) {
                 if(Object.keys(data.periodData).length === 0) {
                     return cell
                 }
-                
-                if (isWithinPeriod(i + 1)) {
-                    return {
-                        ...cell,
-                        inPeriod: true
-                    }
-                } else {
-                    return cell;
-                }
+
+                return isWithinPeriod(i + 1) ? { ...cell, inPeriod: true } : cell;
             });
 
             let markStartEnd = markFlowDays.map((cell, i) => {
@@ -92,18 +85,14 @@ function CalendarComponent({data}) {
             });
 
             let markSpotDays = markStartEnd.map((cell, i) => {
-                for(let spot of data.spotData) {
+                let isSpot = false;
+                data.spotData.forEach((spot) => {
                     let date = dayjs.unix(spot).date()
-                    if(date === i + 1) {
-                        return {
-                            ...cell,
-                            spot: true
-                        }
-                    } else {
-                        console.log('fired' + date + (i + 1))
-                        return cell
+                    if (date === i + 1) {
+                        isSpot = true
                     }
-                }
+                })
+                return isSpot ? { ...cell, spot: true } : cell
             })
 
             return markSpotDays;
