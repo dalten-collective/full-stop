@@ -54,8 +54,8 @@ export function App() {
   const [lastEdit, setLastEdit] = useState();
   const focused = useWindowFocus();
 
-  const initialState = { currentActions: [] }
-  const [event, dispatch] = useReducer(reduceSubmission, initialState);
+  const initialState = { currentActions: [], handled: false }
+  const [event, dispatch] = useReducer(reduceEvent, initialState);
 
   useEffect(() => {
     async function init() {
