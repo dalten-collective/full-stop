@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useLocalStorage, useWindowFocus } from './lib';
 import Urbit from '@urbit/http-api';
@@ -36,11 +36,26 @@ async function shouldUpdatePeriods(prevLast) {
   return shouldUpdate;
 }
 
+function reduceEvent(state, action) {
+  let newState = [];
+
+  switch(action.type) {
+    case 'spot': {
+      break;
+    }
+  }
+
+  return newState;
+}
+
 export function App() {
   const [periods, setPeriods] = useLocalStorage('perioddata');
   const [spots, setSpots] = useLocalStorage('spotdata');
   const [lastEdit, setLastEdit] = useState();
   const focused = useWindowFocus();
+
+  const initialState = { currentActions: [] }
+  const [event, dispatch] = useReducer(reduceSubmission, initialState);
 
   useEffect(() => {
     async function init() {
