@@ -35,7 +35,7 @@ async function shouldUpdatePeriods(prevLast) {
 
   return shouldUpdate;
 }
-
+//{action.type: "type", action.payload: {}}
 function reduceEvent(state, action) {
   let newState = [];
 
@@ -55,7 +55,7 @@ export function App() {
   const focused = useWindowFocus();
 
   const initialState = { currentActions: [], handled: false }
-  const [event, dispatch] = useReducer(reduceEvent, initialState);
+  const [dbEvent, dbDispatch] = useReducer(reduceEvent, initialState);
 
   useEffect(() => {
     async function init() {
@@ -101,7 +101,7 @@ export function App() {
   return (
     <BrowserRouter basename='/apps/full-stop/'>
       <Routes>
-        <Route path="/" element={<Overview data={{periods: periods, spots: spots}}/>} />
+        <Route path="/" element={<Overview data={{periods: periods, spots: spots}} dispatch={dbDispatch}/>} />
         <Route path="/details" element={<Details data={{periods: periods, spots: spots}}/>} />
         <Route path="/options" element={<Options/>} />
       </Routes>

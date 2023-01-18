@@ -5,7 +5,7 @@ import NavBar from "../components/navbar";
 import dayjs from "dayjs";
 import { useEffect } from "react";
 
-export function Overview({data}) {
+export function Overview({data, dispatch}) {
     const [calendarState, setCalendarState] = useState({})
 
     useEffect(() => {
@@ -50,7 +50,7 @@ export function Overview({data}) {
             <div className="justify-center max-w-2xl m-auto">
                 <h1 className="text-4xl font-bold">Your Overview</h1>
                 <hr className="mb-2 h-2 bg-gray-900 border-0"/>
-                <CalendarComponent data={calendarState}/>
+                <CalendarComponent data={calendarState} dispatch={dispatch}/>
             </div>
         </main>
     )

@@ -4,7 +4,7 @@ import dayjs from "dayjs"
 import CalendarCell from "./calendarCell"
 import PopupMenu from "./popupmenu";
 
-function CalendarComponent({data}) {
+function CalendarComponent({data, dispatch}) {
     let todaysDate = dayjs();
     let monthDays = todaysDate.daysInMonth();
     let [cells, setCells] = useState([]);
