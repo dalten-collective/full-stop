@@ -36,18 +36,6 @@ async function shouldUpdatePeriods(prevLast) {
 
   return shouldUpdate;
 }
-//{action.type: "type", action.payload: {}}
-function dbDispatch(action) {
-  let poke = [];
-  let timestamp = dayjs().unix()
-
-  switch(action.type) {
-    case 'spot': {
-
-      break;
-    }
-  }
-}
 
 export function App() {
   const [periods, setPeriods] = useLocalStorage('perioddata');
@@ -55,8 +43,23 @@ export function App() {
   const [lastEdit, setLastEdit] = useState();
   const focused = useWindowFocus();
 
-  // const initialState = { currentActions: [], handled: false }
-  // const [dbEvent, dbDispatch] = useReducer(reduceEvent, initialState);
+  function dbDispatch(action) {
+    let poke;
+    let timestamp = dayjs().unix()
+  
+    switch(action.type) {
+      case 'spot': {
+        poke = [{ wen: timestamp, spot: { wen: action.payload.date } }];
+        break;
+      }
+    }
+  
+    return window.api.poke({
+      app: "full-stop",
+      mark: "dot-point",
+      json: poke,
+    }).then(() => location.reload());
+  }
 
   useEffect(() => {
     async function init() {
