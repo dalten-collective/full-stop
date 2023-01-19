@@ -142,6 +142,9 @@ function CalendarComponent({data, dispatch}) {
                 return cell;
             }
         })
+
+        let currentDateUnix = dayjs().date(currentSelection + 1).unix();
+        dispatch({type: 'spot', payload: { date: currentDateUnix }});
         setCells(spotUnspot);
     }
 

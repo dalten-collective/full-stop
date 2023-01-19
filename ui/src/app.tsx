@@ -3,6 +3,7 @@ import React, { useEffect, useReducer, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useLocalStorage, useWindowFocus } from './lib';
 import Urbit from '@urbit/http-api';
+import dayjs from 'dayjs';
 import { Overview } from './views/overview';
 import { Details } from './views/details';
 import { Options } from './views/options';
@@ -36,16 +37,16 @@ async function shouldUpdatePeriods(prevLast) {
   return shouldUpdate;
 }
 //{action.type: "type", action.payload: {}}
-function reduceEvent(state, action) {
-  let newState = [];
+function dbDispatch(action) {
+  let poke = [];
+  let timestamp = dayjs().unix()
 
   switch(action.type) {
     case 'spot': {
+
       break;
     }
   }
-
-  return newState;
 }
 
 export function App() {
@@ -54,8 +55,8 @@ export function App() {
   const [lastEdit, setLastEdit] = useState();
   const focused = useWindowFocus();
 
-  const initialState = { currentActions: [], handled: false }
-  const [dbEvent, dbDispatch] = useReducer(reduceEvent, initialState);
+  // const initialState = { currentActions: [], handled: false }
+  // const [dbEvent, dbDispatch] = useReducer(reduceEvent, initialState);
 
   useEffect(() => {
     async function init() {
