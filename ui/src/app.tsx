@@ -58,7 +58,7 @@ export function App() {
       app: "full-stop",
       mark: "dot-point",
       json: poke,
-    }).then(() => location.reload());
+    })//.then(() => location.reload());
   }
 
   useEffect(() => {
@@ -76,31 +76,39 @@ export function App() {
         path: "/last"
       })
       setSpots(getSpots);
-      setLastEdit(getLastEdit);
       setPeriods(getPeriods);
+      setLastEdit(getLastEdit);
     }
     init();
   }, [])
 
   useEffect(async () => {
-    const shouldUpdate = await shouldUpdatePeriods(lastEdit)
-    if(focused && shouldUpdate) {
-      async function update() {
-        let getPeriods = await api.scry({
-          app: "full-stop",
-          path: "/moon/each",
-        })
+    const updatePeriods = await shouldUpdatePeriods(lastEdit);
+    const updateSpots = await checkSpots()
+    console.log(doUpdate)
+
+    if (focused && updateSpots) {
+      async function updateSpots() {
         let getSpots = await api.scry({
           app: "full-stop",
           path: "/spot"
-        })
-
-        setPeriods(getPeriods);
-        setSpots(getSpots);
+        }).then(() => setSpots(getSpots));
       }
-      update();
+
+      updateSpots();
     }
-  }, [focused, periods, spots])
+
+    if (focused && updatePeriods) {
+      async function updatePeriods() {
+        let getSpots = await api.scry({
+          app: "full-stop",
+          path: "/moon/each"
+        }).then(() => setSpots(getSpots));
+      }
+
+      updatePeriods();
+    }
+  }, [focused])
 
   return (
     <BrowserRouter basename='/apps/full-stop/'>
