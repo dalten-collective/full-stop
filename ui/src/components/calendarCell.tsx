@@ -8,20 +8,22 @@ export default function CalendarCell({ cellState, day, onDateClicked}) {
 
     return (
         <div key={day} className={styleStr} onClick={(e) => onDateClicked(day)}>
-            <div className="grid">
-                <p className="text-xs md:text-lg select-none">{day + 1}</p>
-                {cellState.spot == true ? 
-                    <div className="rounded-full bg-black w-3 h-3 md:w-5 md:h-5 justify-self-center"/> 
-                    : <div/>
-                }
-                {cellState.periodStart == true ?
-                    <div className="rounded-full bg-red-700 w-3 h-3 md:w-5 md:h-5 justify-self-center"/>
-                    : <div/>
-                }
-                {cellState.periodEnd == true ?
-                    <div className="border-4 border-red-700 w-3 h-3 md:w-5 md:h-5 justify-self-center"/>
-                    : <div/>
-                }
+            <div className="select-none">
+                <p className="text-xs md:text-lg">{day + 1}</p>
+                <div className="flex">
+                    {cellState.periodStart == true ?
+                        <div className="text-xs md:text-lg text-red-700 ">●</div>
+                        : <div/>
+                    }
+                    {cellState.periodEnd == true ?
+                        <div className="text-xs md:text-lg text-red-700">◯</div>
+                        : <div/>
+                    }
+                    {cellState.spot == true ? 
+                        <div className="font-bold text-xs md:text-lg text-red-700">,</div> 
+                        : <div/>
+                    }
+                </div>
             </div>
         </div>
     )
