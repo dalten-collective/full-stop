@@ -41,6 +41,7 @@ export function App() {
   const [periods, setPeriods] = useLocalStorage('perioddata');
   const [spots, setSpots] = useLocalStorage('spotdata');
   const [lastEdit, setLastEdit] = useState();
+  const [updateSpots, setUpdateSpots] = useState(false);
   const focused = useWindowFocus();
 
   function dbDispatch(action) {
@@ -58,7 +59,7 @@ export function App() {
       app: "full-stop",
       mark: "dot-point",
       json: poke,
-    })//.then(() => location.reload());
+    }).then(() => setUpdateSpots(true));
   }
 
   useEffect(() => {
@@ -84,15 +85,16 @@ export function App() {
 
   useEffect(async () => {
     const updatePeriods = await shouldUpdatePeriods(lastEdit);
-    const updateSpots = await checkSpots()
-    console.log(doUpdate)
 
     if (focused && updateSpots) {
       async function updateSpots() {
         let getSpots = await api.scry({
           app: "full-stop",
           path: "/spot"
-        }).then(() => setSpots(getSpots));
+        });
+
+        setSpots(getSpots);
+        setUpdateSpots(false);
       }
 
       updateSpots();
@@ -100,15 +102,17 @@ export function App() {
 
     if (focused && updatePeriods) {
       async function updatePeriods() {
-        let getSpots = await api.scry({
+        let getPeriods = await api.scry({
           app: "full-stop",
           path: "/moon/each"
-        }).then(() => setSpots(getSpots));
+        });
+
+        setPeriods(getPeriods);
       }
 
       updatePeriods();
     }
-  }, [focused])
+  }, [focused, updateSpots])
 
   return (
     <BrowserRouter basename='/apps/full-stop/'>
