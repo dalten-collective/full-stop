@@ -173,7 +173,24 @@ function CalendarComponent({data, dispatch}) {
     }
 
     function handleRatingClick(value) {
-        console.log(value)
+        let changeRating = cells.map((cell, ind) => {
+            if (ind == currentSelection) {
+                return {
+                    ...cell,
+                    rating: value
+                }
+            } else {
+                return cell;
+            }
+        })
+
+        let currentDateUnix = dayjs().date(currentSelection + 1).unix();
+        if (cells[currentSelection].inPeriod) {
+            dispatch({type: 'rate', payload: { date: currentDateUnix, rating: value}})
+            setCells(changeRating);
+        } else { // add some sort of feedback?
+            ;
+        }
     }
 
     return (

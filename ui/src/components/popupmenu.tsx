@@ -13,6 +13,7 @@ export default function PopupMenu({handleSpot, handleRating}) {
                 <MenuItem onClick={(e) => handleSpot()}>Spot</MenuItem>
                 <SubMenu label="Intensity Rating">
                     <MenuRadioGroup onRadioChange={(e) => handleRating(e.value)}>
+                        <MenuItem type="radio" value={0}>Remove Rating</MenuItem>
                         <MenuItem type="radio" value={1}>1</MenuItem>
                         <MenuItem type="radio" value={2}>2</MenuItem>
                         <MenuItem type="radio" value={3}>3</MenuItem>

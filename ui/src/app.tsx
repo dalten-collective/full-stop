@@ -42,15 +42,24 @@ export function App() {
   const [spots, setSpots] = useLocalStorage('spotdata');
   const [lastEdit, setLastEdit] = useState();
   const [updateSpots, setUpdateSpots] = useState(false);
+  const [updateRatings, setUpdateRatings] = useState(false);
   const focused = useWindowFocus();
 
   function dbDispatch(action) {
     let poke;
+    let wasSpot = false;
+    let wasRating = false;
     let timestamp = dayjs().unix()
   
     switch(action.type) {
       case 'spot': {
         poke = [{ wen: timestamp, spot: { wen: action.payload.date } }];
+        wasSpot = true;
+        break;
+      }
+      case 'rate': {
+        poke = [{ wen: timestamp, rate: { wen: action.payload.date, how: action.payload.rating }}]
+        wasRating = true;
         break;
       }
     }
@@ -59,7 +68,15 @@ export function App() {
       app: "full-stop",
       mark: "dot-point",
       json: poke,
-    }).then(() => setUpdateSpots(true));
+    }).then(() => {
+      if(wasSpot) { 
+        wasSpot = false; 
+        setUpdateSpots(true);
+      } else if (wasRating) {
+        wasRating = false;
+        setUpdateRatings(true);
+      }
+    });
   }
 
   useEffect(() => {
@@ -100,7 +117,7 @@ export function App() {
       updateSpots();
     }
 
-    if (focused && updatePeriods) {
+    if ((focused && updatePeriods) || updateRatings) {
       async function updatePeriods() {
         let getPeriods = await api.scry({
           app: "full-stop",
@@ -112,7 +129,7 @@ export function App() {
 
       updatePeriods();
     }
-  }, [focused, updateSpots])
+  }, [focused, updateSpots, updateRatings])
 
   return (
     <BrowserRouter basename='/apps/full-stop/'>
