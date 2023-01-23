@@ -23,6 +23,10 @@ export default function CalendarCell({ cellState, day, onDateClicked}) {
                         <div className="font-bold text-xs md:text-lg text-red-700">,</div> 
                         : <div/>
                     }
+                    {cellState.rating > 0 ? 
+                        <p className="text-xs md:text-lg">{cellState.rating}</p> 
+                        : <div/>
+                    }
                 </div>
             </div>
         </div>

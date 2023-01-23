@@ -21,7 +21,7 @@ function CalendarComponent({data, dispatch}) {
     useEffect(() => {
         function init() {
             let month = []
-            let initial = {spot: false, selected: false, periodStart: false, inPeriod: false, periodEnd: false}
+            let initial = {spot: false, selected: false, periodStart: false, inPeriod: false, periodEnd: false, rating: 0}
 
             for (let i = 0; i < monthDays; i++) {
                 month.push(initial)
@@ -84,7 +84,31 @@ function CalendarComponent({data, dispatch}) {
                 }
             });
 
-            let markSpotDays = markStartEnd.map((cell, i) => {
+            let setRatings = markStartEnd.map((cell, i) => {
+                let setRating = false
+                let cellRating = 0;
+                if(Object.keys(data.periodData).length === 0) {
+                    return cell
+                }
+
+                for (let j = 0; j < data.periodData.ratings.length; j++) {
+                    if(i + 1 == data.periodData.ratings[j].ratingDate.date()) {
+                        setRating = true;
+                        cellRating = data.periodData.ratings[j].rating
+                    }
+                }
+
+                if (setRating) {
+                    return {
+                        ...cell,
+                        rating: cellRating
+                    }
+                } else {
+                    return cell
+                }
+            })
+
+            let markSpotDays = setRatings.map((cell, i) => {
                 let isSpot = false;
                 data.spotData.forEach((spot) => {
                     let date = dayjs.unix(spot).date()
