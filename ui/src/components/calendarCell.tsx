@@ -24,7 +24,7 @@ export default function CalendarCell({ cellState, day, onDateClicked}) {
                         : <div/>
                     }
                     {cellState.rating > 0 ? 
-                        <p className="text-xs md:text-lg">{cellState.rating}</p> 
+                        <p className="font-extrabold text-xs md:text-lg">{cellState.rating}</p> 
                         : <div/>
                     }
                 </div>
