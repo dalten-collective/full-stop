@@ -193,6 +193,14 @@ function CalendarComponent({data, dispatch}) {
         }
     }
 
+    function handleFlowStart() {
+
+    }
+
+    function handleFlowStop() {
+
+    }
+
     return (
         <>
             <div className={`grid gap-3 grid-cols-7 justify-items-center`}>
@@ -204,7 +212,7 @@ function CalendarComponent({data, dispatch}) {
                     return <CalendarCell key={"cell-" + i} cellState={cell} day={i} onDateClicked={handleNewSelection}/>
                 })}
             </div>
-            <PopupMenu handleSpot={handleSpotClick} handleRating={handleRatingClick}/>
+            <PopupMenu handleSpot={handleSpotClick} handleRating={handleRatingClick} handleFlowStart={handleFlowStart} handleFlowStop={handleFlowStop}/>
         </>
     )
 }

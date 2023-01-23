@@ -5,12 +5,16 @@ import '@szhsin/react-menu/dist/index.css';
 import '@szhsin/react-menu/dist/transitions/slide.css';
 import './radiostyle.css'
 
-export default function PopupMenu({handleSpot, handleRating}) {
+export default function PopupMenu({handleSpot, handleRating, handleFlowStart, handleFlowStop}) {
     let buttonStyle = 'text-4xl pb-1 font-bold w-20 h-20 border-2 hover:bg-gray-100 active:bg-gray-500'
     return (
         <div className="float-right mt-3">
             <Menu menuButton={<MenuButton className={buttonStyle}>+</MenuButton>} arrow  direction='top' transition>
                 <MenuItem onClick={(e) => handleSpot()}>Spot</MenuItem>
+                <SubMenu label="Flow">
+                    <MenuItem onClick={(e) => handleFlowStart()}>Start</MenuItem>
+                    <MenuItem onClick={(e) => handleFlowStop()}>Stop</MenuItem>
+                </SubMenu>
                 <SubMenu label="Intensity Rating">
                     <MenuRadioGroup onRadioChange={(e) => handleRating(e.value)}>
                         <MenuItem type="radio" value={0}>Remove Rating</MenuItem>
@@ -21,7 +25,6 @@ export default function PopupMenu({handleSpot, handleRating}) {
                         <MenuItem type="radio" value={5}>5</MenuItem>
                     </MenuRadioGroup>
                 </SubMenu>
-                <MenuItem>Dummy</MenuItem>
             </Menu>
         </div>
     )
