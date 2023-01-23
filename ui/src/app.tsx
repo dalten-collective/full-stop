@@ -62,6 +62,14 @@ export function App() {
         wasRating = true;
         break;
       }
+      case 'flowstart': {
+        poke = [{wen: timestamp, flow: { wen: action.payload.date }}]
+        break;
+      }
+      case 'flowstop': {
+        poke = [{wen: timestamp, stop: { wen: action.payload.date }}]
+        break;
+      }
     }
   
     return window.api.poke({

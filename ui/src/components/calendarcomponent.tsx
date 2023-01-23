@@ -194,11 +194,21 @@ function CalendarComponent({data, dispatch}) {
     }
 
     function handleFlowStart() {
-
+        let currentDateUnix = dayjs().date(currentSelection + 1).unix()
+        if (cells[currentSelection].inPeriod != true) {
+            dispatch({type: 'flowstart', payload: {date: currentDateUnix}});
+        } else {
+            ;
+        }
     }
 
     function handleFlowStop() {
-
+        let currentDateUnix = dayjs().date(currentSelection + 1).unix()
+        if (cells[currentSelection].inPeriod != true) {
+            dispatch({type: 'flowstop', payload: {date: currentDateUnix}});
+        } else {
+            ;
+        }
     }
 
     return (
