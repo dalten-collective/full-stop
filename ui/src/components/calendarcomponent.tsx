@@ -57,18 +57,10 @@ function CalendarComponent({data, dispatch}) {
 
         function setCellState() {
             let markFlowDays = cells.map((cell, i) => {
-                if(Object.keys(data.periodData).length === 0) {
-                    return cell
-                }
-
                 return isWithinPeriod(i + 1) ? { ...cell, inPeriod: true } : cell;
             });
 
             let markStartEnd = markFlowDays.map((cell, i) => {
-                if(Object.keys(data.periodData).length === 0) {
-                    return cell
-                }
-
                 if(data.periodData.periodStart.date() === i + 1) {
                     return {
                         ...cell,
@@ -87,9 +79,6 @@ function CalendarComponent({data, dispatch}) {
             let setRatings = markStartEnd.map((cell, i) => {
                 let setRating = false
                 let cellRating = 0;
-                if(Object.keys(data.periodData).length === 0) {
-                    return cell
-                }
 
                 for (let j = 0; j < data.periodData.ratings.length; j++) {
                     if(i + 1 == data.periodData.ratings[j].ratingDate.date()) {
@@ -121,9 +110,10 @@ function CalendarComponent({data, dispatch}) {
 
             return markSpotDays;
         }
+
         // do we have data, a month representation to alter and is the last recorded piece of data in this month?
         if (typeof(data) != 'undefined' && cells.length != 0) {
-            if(data.periodData != {} && data.spotData.length > 0) {
+            if(data.periodData != {} && data.spotData.length > 0 && data.periodData.length > 0) {
                 let cellState = setCellState()
                 setCells(cellState);
             }
