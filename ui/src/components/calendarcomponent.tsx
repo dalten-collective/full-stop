@@ -28,14 +28,7 @@ function CalendarComponent({data, dispatch}) {
             }
     
             let selectToday = month.map((cell, i) => {
-                if ((i + 1) === todaysDate.date()) {
-                    return {
-                        ...cell,
-                        selected: true
-                    }
-                } else {
-                    return cell
-                }
+                return (i + 1) === todaysDate.date() ? { ...cell, selected: true } : cell; 
             });
 
             setCells(selectToday);
@@ -47,74 +40,47 @@ function CalendarComponent({data, dispatch}) {
     //only if we have data do we further manipulate the calendar
     useEffect(() => {
         function isWithinPeriod(thisDate) {
-            let p = false
-            if(thisDate >= data.periodData.periodStart.date() && thisDate <= data.periodData.periodStop.date()) {
-                p = true
-            }
-
-            return p
+            return (thisDate >= data.periodData.periodStart.date() && thisDate <= data.periodData.periodStop.date())
         }
 
-        function setCellState() {
-            let markFlowDays = cells.map((cell, i) => {
-                return isWithinPeriod(i + 1) ? { ...cell, inPeriod: true } : cell;
-            });
+        function parseCellData() {
+            let newCells = [];
 
-            let markStartEnd = markFlowDays.map((cell, i) => {
-                if(data.periodData.periodStart.date() === i + 1) {
-                    return {
-                        ...cell,
-                        periodStart: true
-                    }
-                } else if (data.periodData.periodStop.date() === i + 1) {
-                    return {
-                        ...cell,
-                        periodEnd: true
-                    }
-                } else {
-                    return cell
+            for (let i = 0; i < cells.length; i++) {
+                let newCell = { spot: false, selected: false, periodStart: false, inPeriod: false, periodEnd: false, rating: 0 }
+                if (isWithinPeriod(i + 1)) {
+                    newCell.inPeriod = true;
                 }
-            });
 
-            let setRatings = markStartEnd.map((cell, i) => {
-                let setRating = false
-                let cellRating = 0;
+                if (data.periodData.periodStart.date() === i + 1) {
+                    newCell.periodStart = true;
+                } else if (data.periodData.periodStop.date() === i + 1) {
+                    newCell.periodEnd = true;
+                }
 
                 for (let j = 0; j < data.periodData.ratings.length; j++) {
-                    if(i + 1 == data.periodData.ratings[j].ratingDate.date()) {
-                        setRating = true;
-                        cellRating = data.periodData.ratings[j].rating
+                    if(i + 1 === data.periodData.ratings[j].ratingDate.date()) {
+                        newCell.rating = data.periodData.ratings[j].rating
                     }
                 }
 
-                if (setRating) {
-                    return {
-                        ...cell,
-                        rating: cellRating
-                    }
-                } else {
-                    return cell
-                }
-            })
-
-            let markSpotDays = setRatings.map((cell, i) => {
-                let isSpot = false;
-                data.spotData.forEach((spot) => {
-                    let date = dayjs.unix(spot).date()
+                for (let j = 0; j < data.spotData.length; j++) {
+                    let date = dayjs.unix(data.spotData[j]).date()
                     if (date === i + 1) {
-                        isSpot = true
+                        newCell.spot = true;
                     }
-                })
-                return isSpot ? { ...cell, spot: true } : cell
-            })
+                }
+                
+                newCells.push(newCell)
+            }
 
-            return markSpotDays;
+            return newCells;
         }
 
         // do we have data, a month representation to alter and is the last recorded piece of data in this month?
         if (typeof(data) != 'undefined' && cells.length != 0) {
-            if(data.periodData != {} && data.spotData.length > 0 && data.periodData.length > 0) {
-                let cellState = setCellState()
+            if(data.periodData != {} && data.spotData.length > 0) {
+                let cellState = parseCellData();
                 setCells(cellState);
             }
         }
