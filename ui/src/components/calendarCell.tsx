@@ -20,7 +20,7 @@ export default function CalendarCell({ cellState, day, onDateClicked}) {
                         : <div/>
                     }
                     {cellState.spot == true ? 
-                        <div className="font-bold text-xs md:text-lg text-red-700">,</div> 
+                        <div className="font-extrabold font-serif text-lg md:text-xl text-red-700">,</div> 
                         : <div/>
                     }
                     {cellState.rating > 0 ? 

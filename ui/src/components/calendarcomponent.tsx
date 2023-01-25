@@ -27,11 +27,11 @@ function CalendarComponent({data, dispatch}) {
                 month.push(initial)
             }
     
-            let selectToday = month.map((cell, i) => {
+            month = month.map((cell, i) => { //select today
                 return (i + 1) === todaysDate.date() ? { ...cell, selected: true } : cell; 
             });
 
-            setCells(selectToday);
+            setCells(month);
         }
 
         init();
@@ -39,38 +39,43 @@ function CalendarComponent({data, dispatch}) {
 
     //only if we have data do we further manipulate the calendar
     useEffect(() => {
-        function isWithinPeriod(thisDate) {
-            return (thisDate >= data.periodData.periodStart.date() && thisDate <= data.periodData.periodStop.date())
+        function isWithinPeriod(thisDate, start, end) {
+            return (thisDate >= start.date() && thisDate <= end.date())
         }
 
-        function parseCellData() {
+        function parseCellData(cPeriodData, cSpotData, prevCells) {
+            console.log('data in function')
+            console.log(prevCells);
             let newCells = [];
+            let periodLen = 0;
 
-            for (let i = 0; i < cells.length; i++) {
-                let newCell = { spot: false, selected: false, periodStart: false, inPeriod: false, periodEnd: false, rating: 0 }
-                if (isWithinPeriod(i + 1)) {
-                    newCell.inPeriod = true;
-                }
-
-                if (data.periodData.periodStart.date() === i + 1) {
-                    newCell.periodStart = true;
-                } else if (data.periodData.periodStop.date() === i + 1) {
-                    newCell.periodEnd = true;
-                }
-
-                for (let j = 0; j < data.periodData.ratings.length; j++) {
-                    if(i + 1 === data.periodData.ratings[j].ratingDate.date()) {
-                        newCell.rating = data.periodData.ratings[j].rating
+            for (let i = 0; i < prevCells.length; i++) {
+                let newCell = {...prevCells[i]};
+                if (isWithinPeriod(i + 1, cPeriodData.periodStart, cPeriodData.periodStop)) {
+                    if (periodLen < 12) { //stop setting period days after this many
+                        newCell.inPeriod = true;
+                        periodLen++;
                     }
                 }
 
-                for (let j = 0; j < data.spotData.length; j++) {
-                    let date = dayjs.unix(data.spotData[j]).date()
+                if (cPeriodData.periodStart.date() === i + 1) {
+                    newCell.periodStart = true;
+                } else if (cPeriodData.periodStop.date() === i + 1) {
+                    newCell.periodEnd = true;
+                }
+
+                for (let j = 0; j < cPeriodData.ratings.length; j++) {
+                    if(i + 1 === cPeriodData.ratings[j].ratingDate.date()) {
+                        newCell.rating = cPeriodData.ratings[j].rating
+                    }
+                }
+
+                for (let j = 0; j < cSpotData.length; j++) {
+                    let date = dayjs.unix(cSpotData[j]).date()
                     if (date === i + 1) {
                         newCell.spot = true;
                     }
                 }
-                
                 newCells.push(newCell)
             }
 
@@ -78,11 +83,14 @@ function CalendarComponent({data, dispatch}) {
         }
 
         // do we have data, a month representation to alter and is the last recorded piece of data in this month?
-        if (typeof(data) != 'undefined' && cells.length != 0) {
-            if(data.periodData != {} && data.spotData.length > 0) {
-                let cellState = parseCellData();
-                setCells(cellState);
+        if (typeof(data) != 'undefined' && cells.length != 0 && data.length != 0) {
+            let cellState;
+            let prevState = [...cells];
+            for (let period of data.periodData) {
+                cellState = parseCellData(period, data.spotData, prevState)
+                prevState = [...cellState];
             }
+            setCells(cellState);
         }
     }, [data])
 
@@ -153,6 +161,8 @@ function CalendarComponent({data, dispatch}) {
         let currentDateUnix = dayjs().date(currentSelection + 1).unix()
         if (cells[currentSelection].inPeriod != true) {
             dispatch({type: 'flowstart', payload: {date: currentDateUnix}});
+        } else if (cells[currentSelection].periodStart == true) {
+            dispatch({type: 'flowstart', payload: {date: currentDateUnix}});
         } else {
             ;
         }
@@ -161,6 +171,8 @@ function CalendarComponent({data, dispatch}) {
     function handleFlowStop() {
         let currentDateUnix = dayjs().date(currentSelection + 1).unix()
         if (cells[currentSelection].inPeriod != true) {
+            dispatch({type: 'flowstop', payload: {date: currentDateUnix}});
+        } else if (cells[currentSelection].periodStop == true) {
             dispatch({type: 'flowstop', payload: {date: currentDateUnix}});
         } else {
             ;

@@ -30,11 +30,13 @@ export function Overview({data, dispatch}) {
                 return { periodStart: start, periodStop: stop, ratings: rates}
             })
             
-            let monthPeriodData = {}
-            let lastPeriod = periodData[periodData.length - 1]
-            if(lastPeriod.periodStart.isSame(todaysDate, 'month')) {
-                monthPeriodData = lastPeriod;
+            let monthPeriodData = []
+            for (let i = 0; i < periodData.length; i++) {
+                if(periodData[i].periodStart.isSame(todaysDate, 'month')) {
+                    monthPeriodData.push(periodData[i]);
+                }
             }
+            // let lastPeriod = periodData[periodData.length - 1]
 
             setCalendarState({periodData: monthPeriodData, spotData: monthSpotData});
         }
