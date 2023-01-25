@@ -44,8 +44,6 @@ function CalendarComponent({data, dispatch}) {
         }
 
         function parseCellData(cPeriodData, cSpotData, prevCells) {
-            console.log('data in function')
-            console.log(prevCells);
             let newCells = [];
             let periodLen = 0;
 
@@ -60,7 +58,7 @@ function CalendarComponent({data, dispatch}) {
 
                 if (cPeriodData.periodStart.date() === i + 1) {
                     newCell.periodStart = true;
-                } else if (cPeriodData.periodStop.date() === i + 1) {
+                } else if (cPeriodData.periodStop.date() === i + 1 && cPeriodData.periodStop != 0) {
                     newCell.periodEnd = true;
                 }
 
