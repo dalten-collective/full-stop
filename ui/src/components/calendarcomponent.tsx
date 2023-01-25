@@ -21,7 +21,7 @@ function CalendarComponent({data, dispatch}) {
     useEffect(() => {
         function init() {
             let month = []
-            let initial = {spot: false, selected: false, periodStart: false, inPeriod: false, periodEnd: false, rating: 0}
+            let initial = {spot: false, selected: false, future: false, periodStart: false, inPeriod: false, periodEnd: false, rating: 0}
 
             for (let i = 0; i < monthDays; i++) {
                 month.push(initial)
@@ -30,6 +30,10 @@ function CalendarComponent({data, dispatch}) {
             month = month.map((cell, i) => { //select today
                 return (i + 1) === todaysDate.date() ? { ...cell, selected: true } : cell; 
             });
+
+            month = month.map((cell, i) => { //grey out days after today
+                return (i + 1) > todaysDate.date() ? { ...cell, future: true } : cell;
+            })
 
             setCells(month);
         }
@@ -94,7 +98,7 @@ function CalendarComponent({data, dispatch}) {
 
     function handleNewSelection(i) {
         let selectDeselect = cells.map((cell, ind) => {
-            if (ind === i && cell.selected !== true) {
+            if (ind === i && cell.selected !== true && cell.future !== true) {
                 setSelection(i);
                 return {
                     ...cell,
