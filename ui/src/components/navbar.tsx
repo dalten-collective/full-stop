@@ -27,7 +27,7 @@ export default function NavBar() {
                     <NavLink to="/options" className={
                         ({isActive})=> isActive ? activeClassName : linkClassName
                     }>
-                    Options
+                    Configure
                     </NavLink>
                 </li>
             </ul>
