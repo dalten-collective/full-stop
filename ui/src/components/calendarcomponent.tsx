@@ -102,7 +102,7 @@ function CalendarComponent({data, dispatch}) {
                 setSelection(i);
                 return {
                     ...cell,
-                    selected: true
+                    selected: !cell.selected
                 }
             } else if (ind !== i && cell.selected === true) {
                 return {
@@ -118,15 +118,10 @@ function CalendarComponent({data, dispatch}) {
 
     function handleSpotClick() {
         let spotUnspot = cells.map((cell, ind) => {
-            if (ind === currentSelection && cell.spot !== true) {
+            if (ind === currentSelection) {
                 return {
                     ...cell,
-                    spot: true
-                }
-            } else if (ind === currentSelection && cell.spot === true) {
-                return {
-                    ...cell,
-                    spot: false
+                    spot: !cell.spot
                 }
             } else {
                 return cell;
@@ -160,6 +155,17 @@ function CalendarComponent({data, dispatch}) {
     }
 
     function handleFlowStart() {
+        let startFlow = cells.map((cell, ind) => {
+            if (ind === currentSelection) {
+                return {
+                    ...cell,
+                    periodStart: !cell.periodStart
+                }
+            } else {
+                return cell;
+            }
+        })
+
         let currentDateUnix = dayjs().date(currentSelection + 1).unix()
         if (cells[currentSelection].inPeriod != true) {
             dispatch({type: 'flowstart', payload: {date: currentDateUnix}});
@@ -168,17 +174,24 @@ function CalendarComponent({data, dispatch}) {
         } else {
             ;
         }
+        setCells(startFlow);
     }
 
     function handleFlowStop() {
+        let endFlow = cells.map((cell, ind) => {
+            if (ind === currentSelection && cell.periodEnd !== true) {
+                return {
+                    ...cell,
+                    periodEnd: !cell.periodEnd
+                }
+            } else {
+                return cell;
+            }
+        })
+
         let currentDateUnix = dayjs().date(currentSelection + 1).unix()
-        if (cells[currentSelection].inPeriod != true) {
-            dispatch({type: 'flowstop', payload: {date: currentDateUnix}});
-        } else if (cells[currentSelection].periodStop == true) {
-            dispatch({type: 'flowstop', payload: {date: currentDateUnix}});
-        } else {
-            ;
-        }
+        dispatch({type: 'flowstop', payload: {date: currentDateUnix}});
+        setCells(endFlow);
     }
 
     return (
