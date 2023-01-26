@@ -40,6 +40,7 @@ async function shouldUpdatePeriods(prevLast) {
 export function App() {
   const [periods, setPeriods] = useLocalStorage('perioddata');
   const [spots, setSpots] = useLocalStorage('spotdata');
+  const [optiondata, setOptiondata] = useLocalStorage('optiondata')
   const [lastEdit, setLastEdit] = useState();
   const [updateSpots, setUpdateSpots] = useState(false);
   const [updateRatings, setUpdateRatings] = useState(false);
@@ -101,9 +102,14 @@ export function App() {
         app: "full-stop",
         path: "/last"
       })
+      const getOptions = await api.scry({
+        app: "full-stop",
+        path: "/opts"
+      })
       setSpots(getSpots);
       setPeriods(getPeriods);
       setLastEdit(getLastEdit);
+      setOptiondata(getOptions)
     }
     init();
   }, [])
@@ -144,7 +150,7 @@ export function App() {
       <Routes>
         <Route path="/" element={<Overview data={{periods: periods, spots: spots}} dispatch={dbDispatch}/>} />
         <Route path="/details" element={<Details data={{periods: periods, spots: spots}}/>} />
-        <Route path="/options" element={<Options/>} />
+        <Route path="/options" element={<Options data={optiondata} dispatch={dbDispatch}/>} />
       </Routes>
     </BrowserRouter>
   );

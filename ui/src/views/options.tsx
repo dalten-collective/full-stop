@@ -1,8 +1,22 @@
 //@ts-nocheck
-import React from "react"
+import React, { useEffect, useState } from "react"
 import NavBar from "../components/navbar"
 
-export function Options({data}) {
+export function Options({data, dispatch}) {
+    const [optionsState, setOptionsState] = useState({});
+
+    useEffect(() => {
+        function init() {
+            let notistate = data.noti;
+            let fertstate = data.fert;
+            setOptionsState({notifs: notistate, fertility: fertstate});
+        }
+        
+        if(data != undefined) {
+            init()
+        }
+    }, [])
+
     return (
         <main>
             <NavBar/>
