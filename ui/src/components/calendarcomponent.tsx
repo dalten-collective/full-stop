@@ -85,7 +85,7 @@ function CalendarComponent({data, dispatch}) {
         }
 
         // do we have data, a month representation to alter and is the last recorded piece of data in this month?
-        if (typeof(data) != 'undefined' && cells.length != 0 && data.length != 0) {
+        if (Object.keys(data).length != 0 && cells.length != 0 && data.length != 0) {
             let cellState;
             let prevState = [...cells];
             for (let period of data.periodData) {

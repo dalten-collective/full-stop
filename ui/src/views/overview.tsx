@@ -36,12 +36,11 @@ export function Overview({data, dispatch}) {
                     monthPeriodData.push(periodData[i]);
                 }
             }
-            // let lastPeriod = periodData[periodData.length - 1]
 
             setCalendarState({periodData: monthPeriodData, spotData: monthSpotData});
         }
         
-        if(data != undefined) {
+        if(Object.keys(data).length != 0) {
             init()
         }
     }, [])

@@ -10,10 +10,10 @@ export function Options({data, dispatch}) {
         function init() {
             let notistate = data.noti;
             let fertstate = data.fert;
-            setOptionsState({notifs: notistate, fertility: fertstate});
+            setOptionsState({notifs: notistate, fertis: fertstate});
         }
         
-        if(data != undefined) {
+        if(Object.keys(data).length != 0) {
             init()
         }
     }, [])
@@ -24,7 +24,7 @@ export function Options({data, dispatch}) {
             <div className="justify-center max-w-2xl m-auto">
                 <h1 className="text-4xl font-bold">Configure</h1>
                 <hr className="mb-2 h-2 bg-gray-900 border-0"/>
-                <OptionComponent/>
+                <OptionComponent data={optionsState} dispatch={dispatch}/>
             </div>
         </main>
     )
