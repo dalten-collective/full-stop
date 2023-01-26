@@ -1,6 +1,7 @@
 //@ts-nocheck
 import React, { useEffect, useState } from "react"
 import NavBar from "../components/navbar"
+import OptionComponent from "../components/optioncomponent";
 
 export function Options({data, dispatch}) {
     const [optionsState, setOptionsState] = useState({});
@@ -23,6 +24,7 @@ export function Options({data, dispatch}) {
             <div className="justify-center max-w-2xl m-auto">
                 <h1 className="text-4xl font-bold">Configure</h1>
                 <hr className="mb-2 h-2 bg-gray-900 border-0"/>
+                <OptionComponent/>
             </div>
         </main>
     )
