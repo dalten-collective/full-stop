@@ -46,6 +46,12 @@ export function App() {
   const [updateRatings, setUpdateRatings] = useState(false);
   const focused = useWindowFocus();
 
+    //ok, try, err, null
+    const [conStatus, setStatus] = useState(null);
+    window.api.onOpen = () => setStatus('ok');
+    window.api.onRetry = () => setStatus('try');
+    window.api.onError = () => setStatus('err');
+  
   function dbDispatch(action) {
     let poke;
     let wasSpot = false;
@@ -152,9 +158,9 @@ export function App() {
   return (
     <BrowserRouter basename='/apps/full-stop/'>
       <Routes>
-        <Route path="/" element={<Overview data={{periods: periods, spots: spots}} dispatch={dbDispatch}/>} />
-        <Route path="/details" element={<Details data={{periods: periods, spots: spots}}/>} />
-        <Route path="/options" element={<Options data={optiondata} dispatch={dbDispatch}/>} />
+        <Route path="/" element={<Overview data={{periods: periods, spots: spots}} conStatus={conStatus} dispatch={dbDispatch}/>} />
+        <Route path="/details" element={<Details data={{periods: periods, spots: spots}} conStatus={conStatus}/>} />
+        <Route path="/options" element={<Options data={optiondata} dispatch={dbDispatch} conStatus={conStatus}/>} />
       </Routes>
     </BrowserRouter>
   );
