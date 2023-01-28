@@ -18,7 +18,7 @@ export function Overview({data, dispatch, conStatus}) {
                 }
             }) || [];
 
-            let periodData = data && data.spots && data.periods.map((e) => {
+            let periodData = data && data.periods && data.periods.map((e) => {
                 let start = dayjs.unix(e.start);
                 let stop = dayjs.unix(e.flow.stop);
 
@@ -43,7 +43,6 @@ export function Overview({data, dispatch, conStatus}) {
         }
         
         if(Object.keys(data).length != 0) {
-            console.log(data);
             init()
         }
     }, [])
