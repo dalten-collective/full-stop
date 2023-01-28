@@ -48,166 +48,176 @@ function CalendarComponent({data, dispatch}) {
         }
 
         function parseCellData(cPeriodData, cSpotData, prevCells) {
+            console.log('call-parseCellData');
             let newCells = [];
             let periodLen = 0;
-
+            
             for (let i = 0; i < prevCells.length; i++) {
-                let newCell = {...prevCells[i]};
-                if (isWithinPeriod(i + 1, cPeriodData.periodStart, cPeriodData.periodStop)) {
-                    if (periodLen < 12) { //stop setting period days after this many
-                        newCell.inPeriod = true;
-                        periodLen++;
-                    }
+              let newCell = {...prevCells[i]};
+              if (isWithinPeriod(i + 1, cPeriodData.periodStart, cPeriodData.periodStop)) {
+                if (periodLen < 12) { //stop setting period days after this many
+                  newCell.inPeriod = true;
+                  periodLen++;
                 }
-
-                if (cPeriodData.periodStart.date() === i + 1) {
-                    newCell.periodStart = true;
-                } else if (cPeriodData.periodStop.date() === i + 1 && cPeriodData.periodStop != 0) {
-                    newCell.periodEnd = true;
+              }
+              
+              if (cPeriodData.periodStart.date() === i + 1) {
+                newCell.periodStart = true;
+              } else if (cPeriodData.periodStop.date() === i + 1 && cPeriodData.periodStop != 0) {
+                newCell.periodEnd = true;
+              }
+              
+              for (let j = 0; j < cPeriodData.ratings.length; j++) {
+                if(i + 1 === cPeriodData.ratings[j].ratingDate.date()) {
+                  newCell.rating = cPeriodData.ratings[j].rating
                 }
-
-                for (let j = 0; j < cPeriodData.ratings.length; j++) {
-                    if(i + 1 === cPeriodData.ratings[j].ratingDate.date()) {
-                        newCell.rating = cPeriodData.ratings[j].rating
-                    }
+              }
+              
+              for (let j = 0; j < cSpotData.length; j++) {
+                let date = dayjs.unix(cSpotData[j]).date()
+                if (date === i + 1) {
+                  newCell.spot = true;
                 }
-
-                for (let j = 0; j < cSpotData.length; j++) {
-                    let date = dayjs.unix(cSpotData[j]).date()
-                    if (date === i + 1) {
-                        newCell.spot = true;
-                    }
-                }
-                newCells.push(newCell)
+              }
+              newCells.push(newCell)
             }
-
+            
             return newCells;
-        }
-
-        // do we have data, a month representation to alter and is the last recorded piece of data in this month?
-        if (Object.keys(data).length != 0 && cells.length != 0 && data.length != 0) {
+          }
+          
+          // do we have data, a month representation to alter and is the last recorded piece of data in this month?
+          if (Object.keys(data).length != 0 && cells.length != 0) {
+            console.log(data);
             let cellState;
             let prevState = [...cells];
-            for (let period of data.periodData) {
+            if (data.periodData.length > 0) {
+              for (let period of data.periodData) {
                 cellState = parseCellData(period, data.spotData, prevState)
                 prevState = [...cellState];
+              }
+              setCells(cellState);
             }
-            setCells(cellState);
-        }
-    }, [data])
-
-    function handleNewSelection(i) {
-        let selectDeselect = cells.map((cell, ind) => {
+          }
+        }, [data])
+        
+        function handleNewSelection(i) {
+          console.log('call-handleNewSelection');
+          let selectDeselect = cells.map((cell, ind) => {
             if (ind === i && cell.selected !== true && cell.future !== true) {
-                setSelection(i);
-                return {
-                    ...cell,
-                    selected: !cell.selected
-                }
+              setSelection(i);
+              return {
+                ...cell,
+                selected: !cell.selected
+              }
             } else if (ind !== i && cell.selected === true) {
-                return {
-                    ...cell,
-                    selected: false
-                }
+              return {
+                ...cell,
+                selected: false
+              }
             } else {
-                return cell;
+              return cell;
             }
-        })
-        setCells(selectDeselect);
-    }
-
-    function handleSpotClick() {
-        let spotUnspot = cells.map((cell, ind) => {
+          })
+          setCells(selectDeselect);
+        }
+        
+        function handleSpotClick() {
+          console.log('call-handleSpotClick');
+          let spotUnspot = cells.map((cell, ind) => {
             if (ind === currentSelection) {
-                return {
-                    ...cell,
-                    spot: !cell.spot
-                }
+              return {
+                ...cell,
+                spot: !cell.spot
+              }
             } else {
-                return cell;
+              return cell;
             }
-        })
-
-        let currentDateUnix = dayjs().date(currentSelection + 1).unix();
-        dispatch({type: 'spot', payload: { date: currentDateUnix }});
-        setCells(spotUnspot);
-    }
-
-    function handleRatingClick(value) {
-        let changeRating = cells.map((cell, ind) => {
+          })
+          
+          let currentDateUnix = dayjs().date(currentSelection + 1).unix();
+          dispatch({type: 'spot', payload: { date: currentDateUnix }});
+          setCells(spotUnspot);
+        }
+        
+        function handleRatingClick(value) {
+          console.log('call-handleRatingClick');
+          let changeRating = cells.map((cell, ind) => {
             if (ind == currentSelection) {
-                return {
-                    ...cell,
-                    rating: value
-                }
+              return {
+                ...cell,
+                rating: value
+              }
             } else {
-                return cell;
+              return cell;
             }
-        })
-
-        let currentDateUnix = dayjs().date(currentSelection + 1).unix();
-        if (cells[currentSelection].inPeriod) {
+          })
+          
+          let currentDateUnix = dayjs().date(currentSelection + 1).unix();
+          if (cells[currentSelection].inPeriod) {
             dispatch({type: 'rate', payload: { date: currentDateUnix, rating: value}})
             setCells(changeRating);
-        } else { // add some sort of feedback?
+          } else { // add some sort of feedback?
             ;
+          }
         }
-    }
-
-    function handleFlowStart() {
-        let startFlow = cells.map((cell, ind) => {
+        
+        function handleFlowStart() {
+          console.log('call-handleFlowStart');
+          let startFlow = cells.map((cell, ind) => {
             if (ind === currentSelection) {
-                return {
-                    ...cell,
-                    periodStart: !cell.periodStart
-                }
+              return {
+                ...cell,
+                periodStart: !cell.periodStart
+              }
             } else {
-                return cell;
+              return cell;
             }
-        })
-
-        let currentDateUnix = dayjs().date(currentSelection + 1).unix()
-        if (cells[currentSelection].inPeriod != true) {
+          })
+          
+          let currentDateUnix = dayjs().date(currentSelection + 1).unix()
+          if (cells[currentSelection].inPeriod != true) {
             dispatch({type: 'flowstart', payload: {date: currentDateUnix}});
-        } else if (cells[currentSelection].periodStart == true) {
+          } else if (cells[currentSelection].periodStart == true) {
             dispatch({type: 'flowstart', payload: {date: currentDateUnix}});
-        } else {
+          } else {
             ;
+          }
+          setCells(startFlow);
         }
-        setCells(startFlow);
-    }
-
-    function handleFlowStop() {
-        let endFlow = cells.map((cell, ind) => {
+        
+        function handleFlowStop() {
+          console.log('call-handleFlowStop');
+          let endFlow = cells.map((cell, ind) => {
             if (ind === currentSelection && cell.periodEnd !== true) {
-                return {
-                    ...cell,
-                    periodEnd: !cell.periodEnd
-                }
+              return {
+                ...cell,
+                periodEnd: !cell.periodEnd
+              }
             } else {
-                return cell;
+              return cell;
             }
-        })
-
-        let currentDateUnix = dayjs().date(currentSelection + 1).unix()
-        dispatch({type: 'flowstop', payload: {date: currentDateUnix}});
-        setCells(endFlow);
-    }
-
-    return (
-        <>
+          })
+          
+          let currentDateUnix = dayjs().date(currentSelection + 1).unix()
+          dispatch({type: 'flowstop', payload: {date: currentDateUnix}});
+          setCells(endFlow);
+        }
+        
+        return (
+          <>
             <div className={`grid gap-3 grid-cols-7 justify-items-center`}>
                 {["mon", "tue", "wed", "thu", "fri", "sat", "sun"].map((head) => {
-                    return <div key={"head-" + head} className="sm:text-lg text-m font-bold">{head}</div>
+                  return <div key={"head-" + head} className="sm:text-lg text-m font-bold">{head}</div>
                 })}
                 {pad}
+                {console.log(cells)}
                 {cells.map((cell, i)=>{
-                    return <CalendarCell key={"cell-" + i} cellState={cell} day={i} onDateClicked={handleNewSelection}/>
+                  return <CalendarCell key={"cell-" + i} cellState={cell} day={i} onDateClicked={handleNewSelection}/>
                 })}
             </div>
             <PopupMenu handleSpot={handleSpotClick} handleRating={handleRatingClick} handleFlowStart={handleFlowStart} handleFlowStop={handleFlowStop}/>
         </>
     )
-}
-
-export default CalendarComponent;
+  }
+  
+  export default CalendarComponent;

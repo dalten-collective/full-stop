@@ -11,14 +11,14 @@ export function Overview({data, dispatch, conStatus}) {
     useEffect(() => {
         function init() {
             let todaysDate = dayjs();
-            let monthSpotData = data.spots.filter((e) => {
+            let monthSpotData = data && data.spots && data.spots.filter((e) => {
                 let spotDate = dayjs.unix(e);
                 if (spotDate.isSame(todaysDate, 'year') && spotDate.isSame(todaysDate, 'month')) {
                     return spotDate;
                 }
-            })
+            }) || [];
 
-            let periodData = data.periods.map((e) => {
+            let periodData = data && data.spots && data.periods.map((e) => {
                 let start = dayjs.unix(e.start);
                 let stop = dayjs.unix(e.flow.stop);
 
@@ -28,19 +28,22 @@ export function Overview({data, dispatch, conStatus}) {
                     return {ratingDate: date, rating: rate}
                 })
                 return { periodStart: start, periodStop: stop, ratings: rates}
-            })
+            }) || null;
             
             let monthPeriodData = []
-            for (let i = 0; i < periodData.length; i++) {
-                if(periodData[i].periodStart.isSame(todaysDate, 'month')) {
-                    monthPeriodData.push(periodData[i]);
-                }
+            if (periodData) {
+              for (let i = 0; i < periodData.length; i++) {
+                  if(periodData[i].periodStart.isSame(todaysDate, 'month')) {
+                      monthPeriodData.push(periodData[i]);
+                  }
+              }
             }
 
             setCalendarState({periodData: monthPeriodData, spotData: monthSpotData});
         }
         
         if(Object.keys(data).length != 0) {
+            console.log(data);
             init()
         }
     }, [])
