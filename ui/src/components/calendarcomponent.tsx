@@ -215,7 +215,6 @@ function CalendarComponent({ data, dispatch }) {
         return cell;
       }
     });
-
     let currentDateUnix = dayjs()
       .date(currentSelection + 1)
       .unix();

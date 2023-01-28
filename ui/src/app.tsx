@@ -77,10 +77,10 @@ export function App() {
         poke = [{wen: timestamp, stop: { wen: action.payload.date }}]
         break;
       }
-
-      case 'noti': {
-        poke = [{wen: timestamp, noti: { }}]
-      }
+      // case 'noti': {
+      //   poke = [{wen: timestamp, noti: { }}]
+      //   break;
+      // }
     }
   
     return window.api.poke({
