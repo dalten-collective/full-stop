@@ -55,6 +55,7 @@ export function Overview({data, dispatch, conStatus}) {
                 <hr className="mb-2 h-2 bg-gray-900 border-0"/>
                 <CalendarComponent data={calendarState} dispatch={dispatch}/>
             </div>
+            <div className="my-12 justify-center max-w-2xl m-auto invisible">.</div>
         </main>
     )
 }

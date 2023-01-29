@@ -9,6 +9,7 @@ function CalendarComponent({ data, dispatch }) {
   let monthDays = todaysDate.daysInMonth();
   let [cells, setCells] = useState([]);
   let [currentSelection, setSelection] = useState(todaysDate.date() - 1);
+  let [popupMenuState, setPMenuState] = useState({});
 
   let pad = [];
   let startofMonth = todaysDate.startOf('month').day();
@@ -18,6 +19,12 @@ function CalendarComponent({ data, dispatch }) {
   for (let i = 0; i != startofMonth; i++) {
     pad.push(<div key={'pad-' + i} />);
   }
+
+  useEffect(() => {
+    if (Object.keys(cells).length != 0) {
+      setPMenuState(cells[currentSelection]);
+    }
+  }, [cells])
 
   //init the calendar and select the date
   useEffect(() => {
@@ -85,7 +92,7 @@ function CalendarComponent({ data, dispatch }) {
         }
 
         for (let j = 0; j < cPeriodData.ratings.length; j++) {
-          if (i  === cPeriodData.ratings[j].ratingDate.date()) {
+          if (i + 1 === cPeriodData.ratings[j].ratingDate.date()) {
             newCell.rating = cPeriodData.ratings[j].rating;
           }
         }
@@ -249,7 +256,7 @@ function CalendarComponent({ data, dispatch }) {
         handleRating={handleRatingClick}
         handleFlowStart={handleFlowStart}
         handleFlowStop={handleFlowStop}
-        selectionState={cells[currentSelection]}
+        selectionState={popupMenuState}
       />
     </>
   );
