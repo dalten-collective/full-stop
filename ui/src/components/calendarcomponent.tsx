@@ -137,7 +137,7 @@ function CalendarComponent({ data, dispatch }) {
 
   function handleSpotClick() {
     let spotUnspot = cells.map((cell, ind) => {
-      if (ind === currentSelection) {
+      if (ind === currentSelection && cell.inPeriod !== true) {
         return {
           ...cell,
           spot: !cell.spot,
