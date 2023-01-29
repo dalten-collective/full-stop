@@ -249,6 +249,7 @@ function CalendarComponent({ data, dispatch }) {
         handleRating={handleRatingClick}
         handleFlowStart={handleFlowStart}
         handleFlowStop={handleFlowStop}
+        selectionState={cells[currentSelection]}
       />
     </>
   );
