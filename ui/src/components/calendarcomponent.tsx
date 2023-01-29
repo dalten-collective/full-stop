@@ -66,7 +66,7 @@ function CalendarComponent({ data, dispatch }) {
       for (let i = 0; i < prevCells.length; i++) {
         let newCell = { ...prevCells[i] };
         if (
-          isWithinPeriod(i, cPeriodData.periodStart, cPeriodData.periodStop)
+          isWithinPeriod(i + 1, cPeriodData.periodStart, cPeriodData.periodStop)
         ) {
           periodLen++;
           if (periodLen < 12) {
@@ -75,10 +75,10 @@ function CalendarComponent({ data, dispatch }) {
           }
         }
 
-        if (cPeriodData.periodStart.date() === i ) {
+        if (cPeriodData.periodStart.date() === i + 1) {
           newCell.periodStart = true;
         } else if (
-          cPeriodData.periodStop.date() === i  &&
+          cPeriodData.periodStop.date() === i + 1  &&
           cPeriodData.periodStop != 0
         ) {
           newCell.periodEnd = true;
@@ -92,7 +92,7 @@ function CalendarComponent({ data, dispatch }) {
 
         for (let j = 0; j < cSpotData.length; j++) {
           let date = dayjs.unix(cSpotData[j]).date();
-          if (date === i ) {
+          if (date === i + 1) {
             newCell.spot = true;
           }
         }
