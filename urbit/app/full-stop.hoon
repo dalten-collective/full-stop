@@ -151,9 +151,7 @@
     ~>  %bout.[0 '%full-stop +on-peek']
     ?+    pat  (on-peek:def pat)
         [%x %last ~]                                    ::  - last update time
-      =-  ``json+!>(`json`-)
-      %-  frond:enjs:format
-      last-edit/la-emit:la-eval:las:hc
+      ``stop-last-edit+!>(`time`la-emit:la-eval:las:hc)
     ::
         [%x %all ~]                                     ::  - web startup data
       :+  ~  ~
@@ -223,14 +221,11 @@
 |_  bol=bowl:gall
 ++  las                                                  :: last edit calculator
   |_  t=(list time)
+  ++  la-emit  `time`(head (sort t gth))
   ++  la-eval
     =+  ev-rain=((ev-rare ,[p=cons edit=time]) rain)
     =+  ev-fire=((ev-rare ,[p=base edit=time]) fire)
     .(t [ev-moon ev-rain ev-fire ev-bear ev-opts ev-hold ~])
-  ++  la-emit
-    ^-  json
-    ?>  !?=(~ t)
-    (sect:enjs:format (head (sort t gth)))
   ::
   ++  ev-opts  edit.opts
   ::
