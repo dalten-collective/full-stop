@@ -10,14 +10,19 @@ export default function PopupMenu({handleSpot, handleRating, handleFlowStart, ha
     return (
     <div className="float-right mt-3">
         <Menu menuButton={<MenuButton className={buttonStyle}>+</MenuButton>} arrow  direction='top' transition>
-            { !selectionState.inPeriod && <MenuItem onClick={(e) => handleSpot()}>Spot</MenuItem> }
             { !selectionState.inPeriod && 
             ( //we can start a flow outside a period only
-                <SubMenu label="Flow">
+            <SubMenu label="Flow">
                     { !selectionState.inPeriod && <MenuItem onClick={(e) => handleFlowStart()}>Start</MenuItem> }
-                    { !selectionState.inPeriod && <MenuItem onClick={(e) => handleFlowStop()}>Stop</MenuItem> }
                 </SubMenu>
             )}
+            { selectionState.inPeriod && 
+            ( //we can stop a flow inside a period only
+            <SubMenu label="Flow">
+                    { selectionState.inPeriod && <MenuItem onClick={(e) => handleFlowStop()}>Stop</MenuItem> }
+                </SubMenu>
+            )}
+            { !selectionState.inPeriod && <MenuItem onClick={(e) => handleSpot()}>Spot</MenuItem> }
             { selectionState.periodStart && <MenuItem onClick={(e) => {handleFlowStart()}}>Remove Period</MenuItem>}
             { selectionState.inPeriod == true && 
             ( //we have to wrap it in this
