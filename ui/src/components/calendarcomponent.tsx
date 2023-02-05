@@ -14,7 +14,11 @@ function CalendarComponent({ data, dispatch }) {
   let [popupMenuState, setPMenuState] = useState({});
 
   let pad = [];
-  let startOfMonth = todaysDate.startOf('M').day()
+  let tzCheck = todaysDate.startOf('M')
+  if (tzCheck.date() == 31 || tzCheck.date() == 30 || tzCheck.date() == 28) {
+    tzCheck = tzCheck.add(12, 'h') //force it to understand the right date
+  }
+  let startOfMonth = tzCheck.day()
   for (let i = 0; i < startOfMonth; i++) {
     pad.push(<div key={'pad-' + i} />);
   }
