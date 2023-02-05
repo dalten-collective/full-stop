@@ -12,11 +12,8 @@ function CalendarComponent({ data, dispatch }) {
   let [popupMenuState, setPMenuState] = useState({});
 
   let pad = [];
-  let startofMonth = todaysDate.startOf('month').day();
-  if (startofMonth === 0) {
-    startofMonth = 6;
-  }
-  for (let i = 0; i != startofMonth; i++) {
+  let startOfMonth = todaysDate.startOf('m').day()
+  for (let i = 0; i < startOfMonth; i++) {
     pad.push(<div key={'pad-' + i} />);
   }
 
@@ -232,7 +229,7 @@ function CalendarComponent({ data, dispatch }) {
   return (
     <>
       <div className={`grid gap-3 grid-cols-7 justify-items-center`}>
-        {['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].map((head) => {
+        {['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'].map((head) => {
           return (
             <div key={'head-' + head} className="sm:text-lg text-m font-bold">
               {head}
