@@ -1,6 +1,5 @@
 //@ts-nocheck
 import React, { useState, useEffect } from 'react';
-import dayjs from 'dayjs';
 import { DetailPicker } from './detailpicker';
 import { DetailTable } from './detailtable';
 

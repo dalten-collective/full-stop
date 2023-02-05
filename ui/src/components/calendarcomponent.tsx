@@ -1,11 +1,13 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
+import dayjs_utc from "dayjs/plugin/utc"
+dayjs.extend(dayjs_utc);
 import CalendarCell from './calendarCell';
 import PopupMenu from './popupmenu';
 
 function CalendarComponent({ data, dispatch }) {
-  let todaysDate = dayjs();
+  let todaysDate = dayjs().utc();
   let monthDays = todaysDate.daysInMonth();
   let [cells, setCells] = useState([]);
   let [currentSelection, setSelection] = useState(todaysDate.date() - 1);
@@ -60,6 +62,10 @@ function CalendarComponent({ data, dispatch }) {
   //only if we have data do we further manipulate the calendar
   useEffect(() => {
     function isWithinPeriod(thisDate, start, end) {
+      if(end.isSame(dayjs.unix(0))) {
+        //we use 01/01/1970 as our 'we dont have a stop date' date
+        return true;
+      }
       return thisDate >= start.date() && thisDate <= end.date();
     }
 
@@ -69,14 +75,14 @@ function CalendarComponent({ data, dispatch }) {
 
       for (let i = 0; i < prevCells.length; i++) {
         let newCell = { ...prevCells[i] };
-        if (
-          isWithinPeriod(i + 1, cPeriodData.periodStart, cPeriodData.periodStop)
-        ) {
+        if (isWithinPeriod(i + 1, cPeriodData.periodStart, cPeriodData.periodStop)) {
           periodLen++;
           if (periodLen < 12) {
             //stop setting period days after this many
             newCell.inPeriod = true;
           }
+        } else if (typeof(cPeriodData.periodStart) != 'undefined') {
+
         }
 
         if (cPeriodData.periodStart.date() === i + 1) {
@@ -95,7 +101,7 @@ function CalendarComponent({ data, dispatch }) {
         }
 
         for (let j = 0; j < cSpotData.length; j++) {
-          let date = dayjs.unix(cSpotData[j]).date();
+          let date = dayjs.unix(cSpotData[j]).utc().date();
           if (date === i + 1) {
             newCell.spot = true;
           }
@@ -153,6 +159,7 @@ function CalendarComponent({ data, dispatch }) {
 
     let currentDateUnix = dayjs()
       .date(currentSelection + 1)
+      .utc()
       .unix();
     dispatch({ type: 'spot', payload: { date: currentDateUnix } });
     setCells(spotUnspot);
@@ -171,6 +178,7 @@ function CalendarComponent({ data, dispatch }) {
     });
 
     let currentDateUnix = dayjs()
+      .utc()
       .date(currentSelection + 1)
       .unix();
     if (cells[currentSelection].inPeriod) {
@@ -197,6 +205,7 @@ function CalendarComponent({ data, dispatch }) {
     });
 
     let currentDateUnix = dayjs()
+      .utc()
       .date(currentSelection + 1)
       .unix();
     if (cells[currentSelection].inPeriod != true) {
@@ -220,6 +229,7 @@ function CalendarComponent({ data, dispatch }) {
       }
     });
     let currentDateUnix = dayjs()
+      .utc()
       .date(currentSelection + 1)
       .unix();
     dispatch({ type: 'flowstop', payload: { date: currentDateUnix } });
