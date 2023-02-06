@@ -14,20 +14,20 @@ export function Overview({data, dispatch, conStatus}) {
         function init() {
             let todaysDate = dayjs().utc();
             let monthSpotData = data && data.spots && data.spots.filter((e) => {
-                let spotDate = dayjs.unix(e).utc().add(12, 'h');
+                let spotDate = dayjs.unix(e).utc();
                 if (spotDate.isSame(todaysDate, 'year') && spotDate.isSame(todaysDate, 'month')) {
                     return spotDate;
                 }
             }) || [];
 
             let periodData = data && data.periods && data.periods.map((e) => {
-                let start = dayjs.unix(e.start).utc().add(12, 'h');
+                let start = dayjs.unix(e.start).utc();
                 let stopV = dayjs.unix(0)
-                if (e.flow.stop != null) { stopV = dayjs.unix(e.flow.stop).utc().add(12, 'h'); }
+                if (e.flow.stop != null) { stopV = dayjs.unix(e.flow.stop).utc(); }
                 let stop = stopV
 
                 let rates = e.flow.rate.map((e) => {
-                    let date = dayjs.unix(e[0]).utc().add(12, 'h');
+                    let date = dayjs.unix(e[0]).utc();
                     let rate = e[1]
                     return {ratingDate: date, rating: rate}
                 })
