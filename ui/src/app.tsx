@@ -1,9 +1,11 @@
 // @ts-nocheck
-import React, { useEffect, useReducer, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useLocalStorage, useWindowFocus } from './lib';
 import Urbit from '@urbit/http-api';
 import dayjs from 'dayjs';
+import dayjs_utc from "dayjs/plugin/utc"
+dayjs.extend(dayjs_utc);
 import { Overview } from './views/overview';
 import { Details } from './views/details';
 import { Options } from './views/options';
@@ -56,7 +58,7 @@ export function App() {
     let poke;
     let wasSpot = false;
     let wasRating = false;
-    let timestamp = dayjs().unix()
+    let timestamp = dayjs().utc().unix()
   
     switch(action.type) {
       case 'spot': {

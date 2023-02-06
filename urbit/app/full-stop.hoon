@@ -537,17 +537,17 @@
       %+  turn  (bap:tick ^moon)
       |=  [w=^time f=^flow]
       %-  pairs
-      :~  start+(sect w)
+      :~  start+(sect (add ~h12 w))
       ::
         :-  %flow
         %-  pairs
-        :~  stop+?~(stop.f ~ (sect u.stop.f))
+        :~  stop+?~(stop.f ~ (sect (add ~h12 u.stop.f)))
             edit+(sect edit.f)
         ::
           :+  %rate  %a
           ^-  (list json)
           %+  turn  (bap:tock rate.f)
-          |=([p=^time q=rate] a+~[(sect p) (numb q)])
+          |=([p=^time q=rate] a+~[(sect (add ~h12 p)) (numb q)])
         ==
       ==
     ::  +spot: state->json, spotting dates
@@ -556,7 +556,7 @@
       ^-  json
       ?:  =(~ spot.state)  ~
       :-  %a
-      (turn ~(tap in spot.state) |=(wen=^time (sect wen)))
+      (turn ~(tap in spot.state) |=(wen=^time (sect (add ~h12 wen))))
     ::  +rain: state->json, mucosal consistencies
     ::
     ++  rain

@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
 export default function CalendarCell({ cellState, day, onDateClicked }) {
   let highlightStr = cellState.selected ? 'border-blue-300 ' : '';

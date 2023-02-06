@@ -1,23 +1,29 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
+import dayjs_utc from "dayjs/plugin/utc"
+dayjs.extend(dayjs_utc);
 import CalendarCell from './calendarCell';
 import PopupMenu from './popupmenu';
 
 function CalendarComponent({ data, dispatch }) {
-  let todaysDate = dayjs();
+  let todaysDate = dayjs().utc();
   let monthDays = todaysDate.daysInMonth();
   let [cells, setCells] = useState([]);
   let [currentSelection, setSelection] = useState(todaysDate.date() - 1);
+  let [popupMenuState, setPMenuState] = useState({});
 
   let pad = [];
-  let startofMonth = todaysDate.startOf('month').day();
-  if (startofMonth === 0) {
-    startofMonth = 6;
-  }
-  for (let i = 0; i != startofMonth; i++) {
+  let startOfMonth = todaysDate.startOf('M').day()
+  for (let i = 0; i < startOfMonth; i++) {
     pad.push(<div key={'pad-' + i} />);
   }
+
+  useEffect(() => {
+    if (Object.keys(cells).length != 0) {
+      setPMenuState(cells[currentSelection]);
+    }
+  }, [cells])
 
   //init the calendar and select the date
   useEffect(() => {
@@ -56,6 +62,10 @@ function CalendarComponent({ data, dispatch }) {
   //only if we have data do we further manipulate the calendar
   useEffect(() => {
     function isWithinPeriod(thisDate, start, end) {
+      if(end.isSame(dayjs.unix(0))) {
+        //we use 01/01/1970 as our 'we dont have a stop date' date
+        return true;
+      }
       return thisDate >= start.date() && thisDate <= end.date();
     }
 
@@ -65,33 +75,33 @@ function CalendarComponent({ data, dispatch }) {
 
       for (let i = 0; i < prevCells.length; i++) {
         let newCell = { ...prevCells[i] };
-        if (
-          isWithinPeriod(i + 1, cPeriodData.periodStart, cPeriodData.periodStop)
-        ) {
+        if (isWithinPeriod(i + 1, cPeriodData.periodStart, cPeriodData.periodStop)) {
           periodLen++;
           if (periodLen < 12) {
             //stop setting period days after this many
             newCell.inPeriod = true;
           }
+        } else if (typeof(cPeriodData.periodStart) != 'undefined') {
+
         }
 
         if (cPeriodData.periodStart.date() === i + 1) {
           newCell.periodStart = true;
         } else if (
-          cPeriodData.periodStop.date() === i + 1  &&
+          cPeriodData.periodStop.date() === i + 1 &&
           cPeriodData.periodStop != 0
         ) {
           newCell.periodEnd = true;
         }
 
         for (let j = 0; j < cPeriodData.ratings.length; j++) {
-          if (i  === cPeriodData.ratings[j].ratingDate.date()) {
+          if (i + 1 === cPeriodData.ratings[j].ratingDate.date()) {
             newCell.rating = cPeriodData.ratings[j].rating;
           }
         }
 
         for (let j = 0; j < cSpotData.length; j++) {
-          let date = dayjs.unix(cSpotData[j]).date();
+          let date = dayjs.unix(cSpotData[j]).utc().date();
           if (date === i + 1) {
             newCell.spot = true;
           }
@@ -149,6 +159,7 @@ function CalendarComponent({ data, dispatch }) {
 
     let currentDateUnix = dayjs()
       .date(currentSelection + 1)
+      .utc()
       .unix();
     dispatch({ type: 'spot', payload: { date: currentDateUnix } });
     setCells(spotUnspot);
@@ -167,6 +178,7 @@ function CalendarComponent({ data, dispatch }) {
     });
 
     let currentDateUnix = dayjs()
+      .utc()
       .date(currentSelection + 1)
       .unix();
     if (cells[currentSelection].inPeriod) {
@@ -193,6 +205,7 @@ function CalendarComponent({ data, dispatch }) {
     });
 
     let currentDateUnix = dayjs()
+      .utc()
       .date(currentSelection + 1)
       .unix();
     if (cells[currentSelection].inPeriod != true) {
@@ -216,6 +229,7 @@ function CalendarComponent({ data, dispatch }) {
       }
     });
     let currentDateUnix = dayjs()
+      .utc()
       .date(currentSelection + 1)
       .unix();
     dispatch({ type: 'flowstop', payload: { date: currentDateUnix } });
@@ -225,7 +239,7 @@ function CalendarComponent({ data, dispatch }) {
   return (
     <>
       <div className={`grid gap-3 grid-cols-7 justify-items-center`}>
-        {['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].map((head) => {
+        {['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'].map((head) => {
           return (
             <div key={'head-' + head} className="sm:text-lg text-m font-bold">
               {head}
@@ -249,6 +263,7 @@ function CalendarComponent({ data, dispatch }) {
         handleRating={handleRatingClick}
         handleFlowStart={handleFlowStart}
         handleFlowStop={handleFlowStop}
+        selectionState={popupMenuState}
       />
     </>
   );
