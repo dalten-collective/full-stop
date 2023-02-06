@@ -14,7 +14,7 @@ function CalendarComponent({ data, dispatch }) {
   let [popupMenuState, setPMenuState] = useState({});
 
   let pad = [];
-  let startOfMonth = todaysDate.startOf('M')
+  let startOfMonth = todaysDate.startOf('M').day()
   for (let i = 0; i < startOfMonth; i++) {
     pad.push(<div key={'pad-' + i} />);
   }
