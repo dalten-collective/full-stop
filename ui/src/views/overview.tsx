@@ -3,8 +3,6 @@ import React, {useEffect, useState} from "react"
 import CalendarComponent from "../components/calendarcomponent";
 import NavBar from "../components/navbar";
 import dayjs from "dayjs";
-import dayjs_utc from "dayjs/plugin/utc"
-dayjs.extend(dayjs_utc);
 import { useEffect } from "react";
 
 export function Overview({data, dispatch, conStatus}) {
@@ -12,22 +10,22 @@ export function Overview({data, dispatch, conStatus}) {
 
     useEffect(() => {
         function init() {
-            let todaysDate = dayjs().utc();
+            let todaysDate = dayjs();
             let monthSpotData = data && data.spots && data.spots.filter((e) => {
-                let spotDate = dayjs.unix(e).utc();
+                let spotDate = dayjs.unix(e);
                 if (spotDate.isSame(todaysDate, 'year') && spotDate.isSame(todaysDate, 'month')) {
                     return spotDate;
                 }
             }) || [];
 
             let periodData = data && data.periods && data.periods.map((e) => {
-                let start = dayjs.unix(e.start).utc();
+                let start = dayjs.unix(e.start);
                 let stopV = dayjs.unix(0)
-                if (e.flow.stop != null) { stopV = dayjs.unix(e.flow.stop).utc(); }
+                if (e.flow.stop != null) { stopV = dayjs.unix(e.flow.stop); }
                 let stop = stopV
 
                 let rates = e.flow.rate.map((e) => {
-                    let date = dayjs.unix(e[0]).utc();
+                    let date = dayjs.unix(e[0]);
                     let rate = e[1]
                     return {ratingDate: date, rating: rate}
                 })
