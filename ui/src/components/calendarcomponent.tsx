@@ -1,15 +1,17 @@
 // @ts-nocheck
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import dayjs from 'dayjs';
 import CalendarCell from './calendarCell';
+import { DispatchContext } from '../app';
 import PopupMenu from './popupmenu';
 
-function CalendarComponent({ data, dispatch }) {
+function CalendarComponent({ data }) {
   let todaysDate = dayjs();
   let monthDays = todaysDate.daysInMonth();
   let [cells, setCells] = useState([]);
   let [currentSelection, setSelection] = useState(todaysDate.date() - 1);
   let [popupMenuState, setPMenuState] = useState({});
+  let dispatch = useContext(DispatchContext);
 
   let pad = [];
   let startOfMonth = todaysDate.startOf('M').day()

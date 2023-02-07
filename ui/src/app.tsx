@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, createContext } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useLocalStorage, useWindowFocus } from './lib';
 import Urbit from '@urbit/http-api';
@@ -11,6 +11,8 @@ import { Options } from './views/options';
 const api = new Urbit('', '', window.desk);
 api.ship = window.ship;
 window.api = api;
+
+export const DispatchContext = createContext();
 
 async function shouldUpdatePeriods(prevLast) {
   if (prevLast === undefined) {
@@ -156,12 +158,14 @@ export function App() {
   }, [focused, updateSpots, updateRatings])
 
   return (
-    <BrowserRouter basename='/apps/full-stop/'>
-      <Routes>
-        <Route path="/" element={<Overview data={{periods: periods, spots: spots}} conStatus={conStatus} dispatch={dbDispatch}/>} />
-        <Route path="/details" element={<Details data={{periods: periods, spots: spots}} conStatus={conStatus}/>} />
-        <Route path="/options" element={<Options data={optiondata} dispatch={dbDispatch} conStatus={conStatus}/>} />
-      </Routes>
-    </BrowserRouter>
+    <DispatchContext.Provider value={dbDispatch}>
+      <BrowserRouter basename='/apps/full-stop/'>
+        <Routes>
+          <Route path="/" element={<Overview data={{periods: periods, spots: spots}} conStatus={conStatus}/>} />
+          <Route path="/options" element={<Options data={optiondata} conStatus={conStatus}/>} />
+          <Route path="/details" element={<Details data={{periods: periods, spots: spots}} conStatus={conStatus}/>} />
+        </Routes>
+      </BrowserRouter>
+    </DispatchContext.Provider>
   );
 }

@@ -14,13 +14,13 @@ export default function PopupMenu({handleSpot, handleRating, handleFlowStart, ha
             ( //we can start a flow outside a period only
             <SubMenu label="Flow">
                     { !selectionState.inPeriod && <MenuItem onClick={(e) => handleFlowStart()}>Start</MenuItem> }
-                </SubMenu>
+            </SubMenu>
             )}
-            { selectionState.inPeriod && 
+            { (selectionState.inPeriod && !selectionState.periodStart) && 
             ( //we can stop a flow inside a period only
             <SubMenu label="Flow">
                     { selectionState.inPeriod && <MenuItem onClick={(e) => handleFlowStop()}>Stop</MenuItem> }
-                </SubMenu>
+            </SubMenu>
             )}
             { !selectionState.inPeriod && <MenuItem onClick={(e) => handleSpot()}>Spot</MenuItem> }
             { selectionState.periodStart && <MenuItem onClick={(e) => {handleFlowStart()}}>Remove Period</MenuItem>}
