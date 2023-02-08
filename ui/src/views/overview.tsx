@@ -38,16 +38,13 @@ export function Overview({data, conStatus}) {
                 })
                 return { periodStart: start, periodStop: stop, ratings: rates}
             }) || null;
-            
-            let monthPeriodData = []
-            if (periodData) {
-              for (let i = 0; i < periodData.length; i++) {
-                  if(periodData[i].periodStart.isSame(todaysDate, 'month')) {
-                      monthPeriodData.push(periodData[i]);
-                  }
-              }
-            }
 
+            let monthPeriodData = periodData.filter((e) => {
+                if(e.periodStart.isSame(todaysDate, 'month')) {
+                    return e
+                }
+            }) || [];
+            
             setCalendarState({periodData: monthPeriodData, spotData: monthSpotData});
         }
         

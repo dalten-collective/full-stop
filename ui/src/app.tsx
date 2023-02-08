@@ -106,9 +106,7 @@ export function App() {
         app: "full-stop",
         path: "/last"
       }).then((latest) => {
-        if (latest["last-edit"] === lastEdit) {
-          ;
-        } else {
+        if (latest["last-edit"] !== lastEdit) {
           updatePeriods = true;
         }
       });
