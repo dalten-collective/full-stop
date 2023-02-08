@@ -14,30 +14,6 @@ window.api = api;
 
 export const DispatchContext = createContext();
 
-async function shouldUpdatePeriods(prevLast) {
-  if (prevLast === undefined) {
-    return false
-  }
-
-  let shouldUpdate = false
-
-  await api.scry({
-    app: "full-stop",
-    path: "/last",
-  }).then((latest) => {
-    let latestInt = latest["last-edit"]
-    if (latestInt === prevLast) {
-      ;
-    } else {
-      shouldUpdate = true
-    }
-  }).catch((reason) => {
-    console.log("promise rejected; reason: " + reason);
-  });
-
-  return shouldUpdate;
-}
-
 export function App() {
   const [periods, setPeriods] = useLocalStorage('perioddata');
   const [spots, setSpots] = useLocalStorage('spotdata');
@@ -126,23 +102,22 @@ export function App() {
   }, [])
 
   useEffect(async () => {
-    const updatePeriods = await shouldUpdatePeriods(lastEdit);
+    let updatePeriods = false;
 
-    if (focused && updateSpots) {
-      async function updateSpots() {
-        let getSpots = await api.scry({
-          app: "full-stop",
-          path: "/spot"
-        });
-
-        setSpots(getSpots);
-        setUpdateSpots(false);
-      }
-
-      updateSpots();
+    if (lastEdit != undefined) {
+      await api.scry({
+        app: "full-stop",
+        path: "/last"
+      }).then((latest) => {
+        if (latest["last-edit"] === lastEdit) {
+          ;
+        } else {
+          updatePeriods = true;
+        }
+      })
     }
 
-    if ((focused && updatePeriods) || updateRatings) {
+    if (updatePeriods || updateRatings) {
       async function updatePeriods() {
         let getPeriods = await api.scry({
           app: "full-stop",
@@ -154,6 +129,20 @@ export function App() {
       }
 
       updatePeriods();
+    }
+
+    if (updateSpots) {
+      async function updateSpots() {
+        let getSpots = await api.scry({
+          app: "full-stop",
+          path: "/spot"
+        });
+
+        setSpots(getSpots);
+        setUpdateSpots(false);
+      }
+
+      updateSpots();
     }
   }, [focused, updateSpots, updateRatings])
 
