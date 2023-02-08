@@ -21,13 +21,14 @@ export function App() {
   const [lastEdit, setLastEdit] = useState();
   const [updateSpots, setUpdateSpots] = useState(false);
   const [updateRatings, setUpdateRatings] = useState(false);
+  const [doUpdate, setDoUpdate] = useState(false);
   const focused = useWindowFocus();
 
-    //ok, try, err, null
-    const [conStatus, setStatus] = useState(null);
-    window.api.onOpen = () => setStatus('ok');
-    window.api.onRetry = () => setStatus('try');
-    window.api.onError = () => setStatus('err');
+  //ok, try, err, null
+  const [conStatus, setStatus] = useState(null);
+  window.api.onOpen = () => setStatus('ok');
+  window.api.onRetry = () => setStatus('try');
+  window.api.onError = () => setStatus('err');
   
   function dbDispatch(action) {
     let poke;
@@ -65,13 +66,9 @@ export function App() {
       mark: "dot-point",
       json: poke,
     }).then(() => {
-      if(wasSpot) { 
-        wasSpot = false; 
-        setUpdateSpots(true);
-      } else if (wasRating) {
-        wasRating = false;
-        setUpdateRatings(true);
-      }
+      if (wasSpot) { setUpdateSpots(true); }
+      if (wasRating) { setUpdateRatings(true); }
+      setDoUpdate(true);
     });
   }
 
@@ -114,7 +111,7 @@ export function App() {
         } else {
           updatePeriods = true;
         }
-      })
+      });
     }
 
     if (updatePeriods || updateRatings) {
@@ -123,11 +120,9 @@ export function App() {
           app: "full-stop",
           path: "/moon/each"
         });
-        
         setPeriods(getPeriods);
         setUpdateRatings(false);
       }
-
       updatePeriods();
     }
 
@@ -137,14 +132,13 @@ export function App() {
           app: "full-stop",
           path: "/spot"
         });
-
         setSpots(getSpots);
         setUpdateSpots(false);
       }
-
       updateSpots();
     }
-  }, [focused, updateSpots, updateRatings])
+    setDoUpdate(false);
+  }, [focused, doUpdate])
 
   return (
     <DispatchContext.Provider value={dbDispatch}>
