@@ -153,115 +153,29 @@ function CalendarComponent({ data }) {
     setCells(selectDeselect);
   }
 
-  function handleSpotClick() {
-    let spotUnspot = cells.map((cell, ind) => {
-      if (ind === currentSelection && cell.inPeriod !== true) {
-        return {
-          ...cell,
-          spot: !cell.spot,
-        };
-      } else {
-        return cell;
-      }
-    });
-
-    let currentDateUnix = dayjs()
+  function handleAction(action) {
+    let currentDate = dayjs()
       .date(currentSelection + 1)
       .unix();
-    dispatch({ type: 'spot', payload: { date: currentDateUnix } });
-    setCells(spotUnspot);
-  }
 
-  function handleRatingClick(value) {
-    let changeRating = cells.map((cell, ind) => {
-      if (ind == currentSelection) {
-        return {
-          ...cell,
-          rating: value,
-        };
-      } else {
-        return cell;
+    switch(action.type) {
+      case 'spot': {
+        dispatch({ type: 'spot', payload: { date: currentDate } });
+        break;
       }
-    });
-
-    let currentDateUnix = dayjs()
-      .date(currentSelection + 1)
-      .unix();
-    if (cells[currentSelection].inPeriod) {
-      dispatch({
-        type: 'rate',
-        payload: { date: currentDateUnix, rating: value },
-      });
-      setCells(changeRating);
-    } else {
-      // add some sort of feedback?
+      case 'rate': {
+        dispatch({ type: 'rate', payload: { date: currentDate, rating: action.payload } });
+        break;
+      }
+      case 'flowstart': {
+        dispatch({ type: 'flowstart', payload: { date: currentDate } });
+        break;
+      }
+      case 'flowstop': {
+        dispatch({ type: 'flowstop', payload: { date: currentDate } });
+        break;
+      }
     }
-  }
-
-  function handleFlowStart() {
-    let startFlow = cells.map((cell, ind) => {
-      if (ind === currentSelection) {
-        return {
-          ...cell,
-          periodStart: !cell.periodStart,
-        };
-      } else {
-        return cell;
-      }
-    });
-
-    let currentDateUnix = dayjs()
-      .date(currentSelection + 1)
-      .unix();
-    dispatch({ type: 'flowstart', payload: { date: currentDateUnix } });
-    setCells(startFlow);
-  }
-
-  function handleRemoveFlow() {
-    let removeFlow = cells.map((cell, ind) => {
-      let newCell = {...cell};
-      let hitStop = false;
-
-      if (ind === currentSelection) {
-        newCell.periodStart = false;
-      }
-      if (!hitStop) {
-        if (newCell.periodStop) {
-          hitStop = true;
-          newCell.periodStop = false;
-        }
-  
-        if(newCell.inPeriod) {
-          newCell.inPeriod = false;
-        }
-      }
-
-      return newCell;
-    });
-
-    let currentDateUnix = dayjs()
-      .date(currentSelection + 1)
-      .unix();
-    dispatch({ type: 'flowstart', payload: { date: currentDateUnix } });
-    setCells(removeFlow);
-  }
-
-  function handleFlowStop() {
-    let endFlow = cells.map((cell, ind) => {
-      if (ind === currentSelection && cell.periodEnd !== true) {
-        return {
-          ...cell,
-          periodEnd: !cell.periodEnd,
-        };
-      } else {
-        return cell;
-      }
-    });
-    let currentDateUnix = dayjs()
-      .date(currentSelection + 1)
-      .unix();
-    dispatch({ type: 'flowstop', payload: { date: currentDateUnix } });
-    setCells(endFlow);
   }
 
   return (
@@ -277,23 +191,11 @@ function CalendarComponent({ data }) {
         {pad}
         {cells.map((cell, i) => {
           return (
-            <CalendarCell
-              key={'cell-' + i}
-              cellState={cell}
-              day={i}
-              onDateClicked={handleNewSelection}
-            />
+            <CalendarCell key={'cell-' + i} cellState={cell} day={i} onDateClicked={handleNewSelection}/>
           );
         })}
       </div>
-      <PopupMenu
-        handleSpot={handleSpotClick}
-        handleRating={handleRatingClick}
-        handleFlowStart={handleFlowStart}
-        handleFlowStop={handleFlowStop}
-        handleRemoveFlow={handleRemoveFlow}
-        selectionState={popupMenuState}
-      />
+      <PopupMenu handleAction={handleAction} selectionState={popupMenuState}/>
     </>
   );
 }
