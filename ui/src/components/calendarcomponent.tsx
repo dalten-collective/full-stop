@@ -75,28 +75,28 @@ function CalendarComponent({ data }) {
 
       for (let i = 0; i < prevCells.length; i++) {
         let newCell = { ...prevCells[i] };
-        if (isWithinPeriod(i + 1, cPeriodData.periodStart, cPeriodData.periodStop)) {
-          periodLen++;
-          if (periodLen < 12) {
-            //stop setting period days after this many
-            newCell.inPeriod = true;
+
+        if(cPeriodData != 'none') {
+          if (isWithinPeriod(i + 1, cPeriodData.periodStart, cPeriodData.periodStop)) {
+            periodLen++;
+            if (periodLen < 12) { //stop setting period days after this many
+              newCell.inPeriod = true;
+            }
+          } 
+  
+          if (cPeriodData.periodStart.date() === i + 1) {
+            newCell.periodStart = true;
+          } else if (
+            cPeriodData.periodStop.date() === i + 1 &&
+            cPeriodData.periodStop != 0
+          ) {
+            newCell.periodEnd = true;
           }
-        } else if (typeof(cPeriodData.periodStart) != 'undefined') {
-
-        }
-
-        if (cPeriodData.periodStart.date() === i + 1) {
-          newCell.periodStart = true;
-        } else if (
-          cPeriodData.periodStop.date() === i + 1 &&
-          cPeriodData.periodStop != 0
-        ) {
-          newCell.periodEnd = true;
-        }
-
-        for (let j = 0; j < cPeriodData.ratings.length; j++) {
-          if (i + 1 === cPeriodData.ratings[j].ratingDate.date()) {
-            newCell.rating = cPeriodData.ratings[j].rating;
+  
+          for (let j = 0; j < cPeriodData.ratings.length; j++) {
+            if (i + 1 === cPeriodData.ratings[j].ratingDate.date()) {
+              newCell.rating = cPeriodData.ratings[j].rating;
+            }
           }
         }
 
@@ -106,8 +106,10 @@ function CalendarComponent({ data }) {
             newCell.spot = true;
           }
         }
+
         newCells.push(newCell);
       }
+
       return newCells;
     }
 
@@ -120,6 +122,10 @@ function CalendarComponent({ data }) {
           cellState = parseCellData(period, data.spotData, prevState);
           prevState = [...cellState];
         }
+        setCells(cellState);
+      } else if (data.spotData.length > 0) {  //any spots just in case?
+        cellState = parseCellData('none', data.spotData, prevState);
+        prevState = [...cellState];
         setCells(cellState);
       }
     }

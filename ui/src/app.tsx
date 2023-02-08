@@ -26,8 +26,7 @@ async function shouldUpdatePeriods(prevLast) {
     path: "/last",
   }).then((latest) => {
     let latestInt = latest["last-edit"]
-    let prevLastInt = prevLast["last-edit"]
-    if (latestInt === prevLastInt) {
+    if (latestInt === prevLast) {
       ;
     } else {
       shouldUpdate = true
@@ -58,7 +57,7 @@ export function App() {
     let poke;
     let wasSpot = false;
     let wasRating = false;
-    let timestamp = dayjs().unix()
+    let timestamp = dayjs().unix();
   
     switch(action.type) {
       case 'spot': {
@@ -120,7 +119,7 @@ export function App() {
       })
       setSpots(getSpots);
       setPeriods(getPeriods);
-      setLastEdit(getLastEdit);
+      setLastEdit(getLastEdit["last-edit"]);
       setOptiondata(getOptions)
     }
     init();
@@ -149,8 +148,9 @@ export function App() {
           app: "full-stop",
           path: "/moon/each"
         });
-
+        
         setPeriods(getPeriods);
+        setUpdateRatings(false);
       }
 
       updatePeriods();
