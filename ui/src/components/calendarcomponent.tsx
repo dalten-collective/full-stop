@@ -211,12 +211,8 @@ function CalendarComponent({ data }) {
     let currentDateUnix = dayjs()
       .date(currentSelection + 1)
       .unix();
-    if (cells[currentSelection].inPeriod != true) {
-      dispatch({ type: 'flowstart', payload: { date: currentDateUnix } });
-    } else if (cells[currentSelection].periodStart == true) {
-      dispatch({ type: 'flowstart', payload: { date: currentDateUnix } });
-    } else {
-    }
+
+    dispatch({ type: 'flowstart', payload: { date: currentDateUnix } });
     setCells(startFlow);
   }
 
