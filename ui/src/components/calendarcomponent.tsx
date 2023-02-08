@@ -82,17 +82,22 @@ function CalendarComponent({ data }) {
             if (periodLen < 12) { //stop setting period days after this many
               newCell.inPeriod = true;
             }
-          } else if (cPeriodData.periodStop != 0 && i + 1 > cPeriodData.periodStart.date()) {
+          }
+
+          if (cPeriodData.periodStop != 0 && i + 1 > cPeriodData.periodStop.date()) {
             newCell.inPeriod = false;
           }
   
           if (cPeriodData.periodStart.date() === i + 1) {
             newCell.periodStart = true;
-          } else if (
-            cPeriodData.periodStop.date() === i + 1 &&
-            cPeriodData.periodStop != 0
-          ) {
+          } else {
+            newCell.periodStart = false;
+          }
+          
+          if ( cPeriodData.periodStop.date() === i + 1 && cPeriodData.periodStop != 0 ) {
             newCell.periodEnd = true;
+          } else {
+            newCell.periodEnd = false;
           }
   
           for (let j = 0; j < cPeriodData.ratings.length; j++) {
@@ -101,12 +106,14 @@ function CalendarComponent({ data }) {
             }
           }
         }
-
-        for (let j = 0; j < cSpotData.length; j++) {
-          let date = dayjs.unix(cSpotData[j]).date();
-          if (date === i + 1) {
-            newCell.spot = true;
-          }
+        
+        if (cSpotData.some((e) => {
+          let date = dayjs.unix(e).date();
+          return (date === i + 1) ? true : false
+        })) {
+          newCell.spot = true;
+        } else {
+          newCell.spot = false;
         }
 
         newCells.push(newCell);

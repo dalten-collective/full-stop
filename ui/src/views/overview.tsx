@@ -25,6 +25,8 @@ export function Overview({data, conStatus}) {
                 }
             }) || [];
 
+            monthSpotData.sort((a,b) => { return a - b })
+
             let periodData = dataState && dataState.periods && dataState.periods.map((e) => {
                 let start = dayjs.unix(e.start);
                 let stopV = dayjs.unix(0)
