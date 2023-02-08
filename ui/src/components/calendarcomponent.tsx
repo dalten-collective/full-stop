@@ -82,7 +82,9 @@ function CalendarComponent({ data }) {
             if (periodLen < 12) { //stop setting period days after this many
               newCell.inPeriod = true;
             }
-          } 
+          } else if (cPeriodData.periodStop != 0) {
+            newCell.inPeriod = false;
+          }
   
           if (cPeriodData.periodStart.date() === i + 1) {
             newCell.periodStart = true;
