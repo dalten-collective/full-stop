@@ -93,45 +93,46 @@ export function App() {
       setSpots(getSpots);
       setPeriods(getPeriods);
       setLastEdit(getLastEdit["last-edit"]);
-      setOptiondata(getOptions)
+      setOptiondata(getOptions);
     }
     init();
   }, [])
 
-  useEffect(async () => {
+  useEffect(() => {
     let updatePeriods = false;
 
     if (lastEdit != undefined) {
-      await api.scry({
-        app: "full-stop",
-        path: "/last"
-      }).then((latest) => {
-        if (latest["last-edit"] !== lastEdit) {
-          updatePeriods = true;
-        }
-      });
+      async function lastUpdate() {
+        await api.scry({
+          app: "full-stop",
+          path: "/last"
+        }).then((latest) => {
+          return latest["last-edit"] !== lastEdit ? true : false;
+        });
+      }
+      updatePeriods = lastUpdate();
     }
 
     if (updatePeriods || updateRatings) {
+      if (updateRatings) { setUpdateRatings(false); }
       async function updatePeriods() {
         let getPeriods = await api.scry({
           app: "full-stop",
           path: "/moon/each"
         });
         setPeriods(getPeriods);
-        setUpdateRatings(false);
       }
       updatePeriods();
     }
 
     if (updateSpots) {
+      setUpdateSpots(false);
       async function updateSpots() {
         let getSpots = await api.scry({
           app: "full-stop",
           path: "/spot"
         });
         setSpots(getSpots);
-        setUpdateSpots(false);
       }
       updateSpots();
     }

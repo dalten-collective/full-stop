@@ -5,7 +5,7 @@ import '@szhsin/react-menu/dist/index.css';
 import '@szhsin/react-menu/dist/transitions/slide.css';
 import './radiostyle.css'
 
-export default function PopupMenu({handleSpot, handleRating, handleFlowStart, handleFlowStop, selectionState}) {
+export default function PopupMenu({handleSpot, handleRating, handleFlowStart, handleRemoveFlow, handleFlowStop, selectionState}) {
     let buttonStyle = 'text-4xl pb-1 font-bold w-20 h-20 border-2 hover:bg-gray-100 active:bg-gray-500'
     return (
     <div className="float-right mt-3">
@@ -13,7 +13,7 @@ export default function PopupMenu({handleSpot, handleRating, handleFlowStart, ha
             { !selectionState.inPeriod && <MenuItem onClick={(e) => handleFlowStart()}>Flow Start</MenuItem> }
             { (selectionState.inPeriod && !selectionState.periodStart) && <MenuItem onClick={(e) => handleFlowStop()}>Flow Stop</MenuItem> }
             { !selectionState.inPeriod && <MenuItem onClick={(e) => handleSpot()}>Spot</MenuItem> }
-            { selectionState.periodStart && <MenuItem onClick={(e) => {handleFlowStart()}}>Remove Period</MenuItem>}
+            { selectionState.periodStart && <MenuItem onClick={(e) => {handleRemoveFlow()}}>Remove Period</MenuItem>}
             { selectionState.inPeriod == true && 
             ( //we have to wrap it in this
                 <SubMenu label="Intensity Rating">

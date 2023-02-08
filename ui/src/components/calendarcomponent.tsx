@@ -213,9 +213,37 @@ function CalendarComponent({ data }) {
     let currentDateUnix = dayjs()
       .date(currentSelection + 1)
       .unix();
-
     dispatch({ type: 'flowstart', payload: { date: currentDateUnix } });
     setCells(startFlow);
+  }
+
+  function handleRemoveFlow() {
+    let removeFlow = cells.map((cell, ind) => {
+      let newCell = {...cell};
+      let hitStop = false;
+
+      if (ind === currentSelection) {
+        newCell.periodStart = false;
+      }
+      if (!hitStop) {
+        if (newCell.periodStop) {
+          hitStop = true;
+          newCell.periodStop = false;
+        }
+  
+        if(newCell.inPeriod) {
+          newCell.inPeriod = false;
+        }
+      }
+
+      return newCell;
+    });
+
+    let currentDateUnix = dayjs()
+      .date(currentSelection + 1)
+      .unix();
+    dispatch({ type: 'flowstart', payload: { date: currentDateUnix } });
+    setCells(removeFlow);
   }
 
   function handleFlowStop() {
@@ -263,6 +291,7 @@ function CalendarComponent({ data }) {
         handleRating={handleRatingClick}
         handleFlowStart={handleFlowStart}
         handleFlowStop={handleFlowStop}
+        handleRemoveFlow={handleRemoveFlow}
         selectionState={popupMenuState}
       />
     </>
