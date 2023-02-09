@@ -18,28 +18,28 @@ export function Overview({data, conStatus}) {
     useEffect(() => {
         function init() {
             let todaysDate = dayjs();
-            let monthSpotData = dataState && dataState.spots && dataState.spots.filter((e) => {
-                let spotDate = dayjs.unix(e);
-                if (spotDate.isSame(todaysDate, 'year') && spotDate.isSame(todaysDate, 'month')) {
-                    return spotDate;
-                }
-            }) || [];
+            let monthSpotData = dataState && dataState.spots && dataState.spots
+                .map((e) => {
+                    let spotDate = dayjs.unix(e);
+                    if (spotDate.isSame(todaysDate, 'year') && spotDate.isSame(todaysDate, 'month')) {
+                        return spotDate;
+                    }
+                }) || [];
 
-            monthSpotData.sort((a,b) => { return a - b })
+            let periodData = dataState && dataState.periods && dataState.periods
+                .map((e) => {
+                    let start = dayjs.unix(e.start);
+                    let stopV = dayjs.unix(0)
+                    if (e.flow.stop != null) { stopV = dayjs.unix(e.flow.stop); }
+                    let stop = stopV
 
-            let periodData = dataState && dataState.periods && dataState.periods.map((e) => {
-                let start = dayjs.unix(e.start);
-                let stopV = dayjs.unix(0)
-                if (e.flow.stop != null) { stopV = dayjs.unix(e.flow.stop); }
-                let stop = stopV
-
-                let rates = e.flow.rate.map((e) => {
-                    let date = dayjs.unix(e[0]);
-                    let rate = e[1]
-                    return {ratingDate: date, rating: rate}
-                })
-                return { periodStart: start, periodStop: stop, ratings: rates}
-            }) || null;
+                    let rates = e.flow.rate.map((e) => {
+                        let date = dayjs.unix(e[0]);
+                        let rate = e[1]
+                        return {ratingDate: date, rating: rate}
+                    })
+                    return { periodStart: start, periodStop: stop, ratings: rates}
+                }) || null;
 
             let monthPeriodData = periodData.filter((e) => {
                 if(e.periodStart.isSame(todaysDate, 'month')) {

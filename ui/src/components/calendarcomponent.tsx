@@ -44,12 +44,10 @@ function CalendarComponent({ data }) {
       }
 
       month = month.map((cell, i) => {
-        //select today
         return i + 1 === todaysDate.date() ? { ...cell, selected: true } : cell;
       });
 
       month = month.map((cell, i) => {
-        //grey out days after today
         return i + 1 > todaysDate.date() ? { ...cell, future: true } : cell;
       });
 
@@ -62,10 +60,6 @@ function CalendarComponent({ data }) {
   //only if we have data do we further manipulate the calendar
   useEffect(() => {
     function isWithinPeriod(thisDate, start, end) {
-      if(end.isSame(dayjs.unix(0))) {
-        //we use 01/01/1970 as our 'we dont have a stop date' date
-        return true;
-      }
       return thisDate >= start.date() && thisDate <= end.date();
     }
 
@@ -82,6 +76,9 @@ function CalendarComponent({ data }) {
             if (periodLen < 12) { //stop setting period days after this many
               newCell.inPeriod = true;
             }
+          } else if (cPeriodData.periodStop.isSame(dayjs.unix(0))) {
+            periodLen++;
+            newCell.inPeriod = true;
           }
 
           if (cPeriodData.periodStop != 0 && i + 1 > cPeriodData.periodStop.date()) {
@@ -105,10 +102,14 @@ function CalendarComponent({ data }) {
               newCell.rating = cPeriodData.ratings[j].rating;
             }
           }
+        } else {
+          newCell.periodEnd = false;
+          newCell.periodStart = false;
+          newCell.inPeriod = false;
         }
         
         if (cSpotData.some((e) => {
-          let date = dayjs.unix(e).date();
+          let date = e.date();
           return (date === i + 1) ? true : false
         })) {
           newCell.spot = true;
@@ -133,6 +134,10 @@ function CalendarComponent({ data }) {
         }
         setCells(cellState);
       } else if (data.spotData.length > 0) {  //any spots just in case?
+        cellState = parseCellData('none', data.spotData, prevState);
+        prevState = [...cellState];
+        setCells(cellState);
+      } else { //remove the period otherwise
         cellState = parseCellData('none', data.spotData, prevState);
         prevState = [...cellState];
         setCells(cellState);
