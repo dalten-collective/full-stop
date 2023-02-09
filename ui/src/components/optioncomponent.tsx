@@ -1,10 +1,12 @@
 //@ts-nocheck
-import React, { useEffect, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import ReactSwitch from "react-switch";
+import { DispatchContext } from '../app';
 
-function OptionComponent({data, dispatch}) {
+function OptionComponent({data}) {
     const [notifState, setNotifState] = useState(false);
     const [fertiState, setFertiState] = useState(false);
+    const dispatch = useContext(DispatchContext);
 
     useEffect(() => {
         function init() {

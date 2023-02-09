@@ -42,7 +42,7 @@ export function useLocalStorage(key, initialValue) {
 }
 
 export function useWindowFocus() {
-    const [focused, setFocus] = useState(false);
+    const [focused, setFocus] = useState(true);
   
     useEffect(() => {
       function blur() {

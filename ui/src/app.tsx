@@ -1,11 +1,9 @@
 // @ts-nocheck
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, createContext } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useLocalStorage, useWindowFocus } from './lib';
 import Urbit from '@urbit/http-api';
 import dayjs from 'dayjs';
-import dayjs_utc from "dayjs/plugin/utc"
-dayjs.extend(dayjs_utc);
 import { Overview } from './views/overview';
 import { Details } from './views/details';
 import { Options } from './views/options';
@@ -14,30 +12,7 @@ const api = new Urbit('', '', window.desk);
 api.ship = window.ship;
 window.api = api;
 
-async function shouldUpdatePeriods(prevLast) {
-  if (prevLast === undefined) {
-    return false
-  }
-
-  let shouldUpdate = false
-
-  await api.scry({
-    app: "full-stop",
-    path: "/last",
-  }).then((latest) => {
-    let latestInt = latest["last-edit"]
-    let prevLastInt = prevLast["last-edit"]
-    if (latestInt === prevLastInt) {
-      ;
-    } else {
-      shouldUpdate = true
-    }
-  }).catch((reason) => {
-    console.log("promise rejected; reason: " + reason);
-  });
-
-  return shouldUpdate;
-}
+export const DispatchContext = createContext();
 
 export function App() {
   const [periods, setPeriods] = useLocalStorage('perioddata');
@@ -46,19 +21,20 @@ export function App() {
   const [lastEdit, setLastEdit] = useState();
   const [updateSpots, setUpdateSpots] = useState(false);
   const [updateRatings, setUpdateRatings] = useState(false);
+  const [doUpdate, setDoUpdate] = useState(false);
   const focused = useWindowFocus();
 
-    //ok, try, err, null
-    const [conStatus, setStatus] = useState(null);
-    window.api.onOpen = () => setStatus('ok');
-    window.api.onRetry = () => setStatus('try');
-    window.api.onError = () => setStatus('err');
+  //ok, try, err, null
+  const [conStatus, setStatus] = useState(null);
+  window.api.onOpen = () => setStatus('ok');
+  window.api.onRetry = () => setStatus('try');
+  window.api.onError = () => setStatus('err');
   
   function dbDispatch(action) {
     let poke;
     let wasSpot = false;
     let wasRating = false;
-    let timestamp = dayjs().utc().unix()
+    let timestamp = dayjs().unix();
   
     switch(action.type) {
       case 'spot': {
@@ -90,13 +66,9 @@ export function App() {
       mark: "dot-point",
       json: poke,
     }).then(() => {
-      if(wasSpot) { 
-        wasSpot = false; 
-        setUpdateSpots(true);
-      } else if (wasRating) {
-        wasRating = false;
-        setUpdateRatings(true);
-      }
+      if (wasSpot) { setUpdateSpots(true); }
+      if (wasRating) { setUpdateRatings(true); }
+      setDoUpdate(true);
     });
   }
 
@@ -120,50 +92,62 @@ export function App() {
       })
       setSpots(getSpots);
       setPeriods(getPeriods);
-      setLastEdit(getLastEdit);
-      setOptiondata(getOptions)
+      setLastEdit(getLastEdit["last-edit"]);
+      setOptiondata(getOptions);
     }
     init();
   }, [])
 
-  useEffect(async () => {
-    const updatePeriods = await shouldUpdatePeriods(lastEdit);
+  useEffect(() => {
+    let updatePeriods = false;
 
-    if (focused && updateSpots) {
-      async function updateSpots() {
-        let getSpots = await api.scry({
+    if (lastEdit != undefined) {
+      async function lastUpdate() {
+        await api.scry({
           app: "full-stop",
-          path: "/spot"
+          path: "/last"
+        }).then((latest) => {
+          return latest["last-edit"] !== lastEdit ? true : false;
         });
-
-        setSpots(getSpots);
-        setUpdateSpots(false);
       }
-
-      updateSpots();
+      updatePeriods = lastUpdate();
     }
 
-    if ((focused && updatePeriods) || updateRatings) {
+    if (updatePeriods || updateRatings) {
+      if (updateRatings) { setUpdateRatings(false); }
       async function updatePeriods() {
         let getPeriods = await api.scry({
           app: "full-stop",
           path: "/moon/each"
         });
-
         setPeriods(getPeriods);
       }
-
       updatePeriods();
     }
-  }, [focused, updateSpots, updateRatings])
+
+    if (updateSpots) {
+      setUpdateSpots(false);
+      async function updateSpots() {
+        let getSpots = await api.scry({
+          app: "full-stop",
+          path: "/spot"
+        });
+        setSpots(getSpots);
+      }
+      updateSpots();
+    }
+    setDoUpdate(false);
+  }, [focused, doUpdate])
 
   return (
-    <BrowserRouter basename='/apps/full-stop/'>
-      <Routes>
-        <Route path="/" element={<Overview data={{periods: periods, spots: spots}} conStatus={conStatus} dispatch={dbDispatch}/>} />
-        <Route path="/details" element={<Details data={{periods: periods, spots: spots}} conStatus={conStatus}/>} />
-        <Route path="/options" element={<Options data={optiondata} dispatch={dbDispatch} conStatus={conStatus}/>} />
-      </Routes>
-    </BrowserRouter>
+    <DispatchContext.Provider value={dbDispatch}>
+      <BrowserRouter basename='/apps/full-stop/'>
+        <Routes>
+          <Route path="/" element={<Overview data={{periods: periods, spots: spots}} conStatus={conStatus}/>} />
+          <Route path="/options" element={<Options data={optiondata} conStatus={conStatus}/>} />
+          <Route path="/details" element={<Details data={{periods: periods, spots: spots}} conStatus={conStatus}/>} />
+        </Routes>
+      </BrowserRouter>
+    </DispatchContext.Provider>
   );
 }

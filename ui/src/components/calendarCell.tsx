@@ -16,6 +16,7 @@ export default function CalendarCell({ cellState, day, onDateClicked }) {
       break;
     default:
       flowFillStr = cellState.inPeriod && !cellState.future ? 'bg-red-200' : '';
+      break;
   }
 
   let isFutureStr = cellState.future ? 'bg-gray-200 hover:bg-gray-200' : '';
