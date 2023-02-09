@@ -60,52 +60,50 @@ function CalendarComponent({ data }) {
   //only if we have data do we further manipulate the calendar
   useEffect(() => {
     function isWithinPeriod(thisDate, start, end) {
-      return thisDate >= start.date() && thisDate <= end.date();
+      return thisDate >= start && thisDate <= end;
     }
 
     function parseCellData(cPeriodData, cSpotData, prevCells) {
       let newCells = [];
       let periodLen = 0;
+      let start = cPeriodData.periodStart;
+      let end = cPeriodData.periodStop;
 
       for (let i = 0; i < prevCells.length; i++) {
         let newCell = { ...prevCells[i] };
 
         if(cPeriodData != 'none') {
-          if (isWithinPeriod(i + 1, cPeriodData.periodStart, cPeriodData.periodStop)) {
+          if (isWithinPeriod(i + 1, start.date(), end.date())) {
             periodLen++;
             if (periodLen < 12) { //stop setting period days after this many
               newCell.inPeriod = true;
             }
-          } else if (cPeriodData.periodStop.isSame(dayjs.unix(0))) {
+          } else if (end.isSame(dayjs.unix(0)) && i + 1 >= start.date()) {
             periodLen++;
             newCell.inPeriod = true;
           }
 
-          if (cPeriodData.periodStop != 0 && i + 1 > cPeriodData.periodStop.date()) {
-            newCell.inPeriod = false;
-          }
-  
-          if (cPeriodData.periodStart.date() === i + 1) {
+          if (start.date() === i + 1) {
             newCell.periodStart = true;
-          } else {
-            newCell.periodStart = false;
           }
-          
-          if ( cPeriodData.periodStop.date() === i + 1 && cPeriodData.periodStop != 0 ) {
-            newCell.periodEnd = true;
-          } else {
-            newCell.periodEnd = false;
-          }
-  
-          for (let j = 0; j < cPeriodData.ratings.length; j++) {
-            if (i + 1 === cPeriodData.ratings[j].ratingDate.date()) {
-              newCell.rating = cPeriodData.ratings[j].rating;
+
+          if (end != 0) {
+            if (i + 1 > end.date()) {
+              newCell.inPeriod = false;
+            }
+
+            if (end.date() === i + 1 && newCell.inPeriod) {
+              newCell.periodEnd = true;
             }
           }
-        } else {
-          newCell.periodEnd = false;
-          newCell.periodStart = false;
-          newCell.inPeriod = false;
+          
+          if (cPeriodData.ratings.length > 0) {
+            for (let j = 0; j < cPeriodData.ratings.length; j++) {
+              let date = cPeriodData.ratings[j].ratingDate.date();
+              let val = cPeriodData.ratings[j].rating;
+              newCell.rating = (i + 1 === date) ? val : newCell.rating;
+            }
+          }
         }
         
         if (cSpotData.some((e) => {
@@ -115,6 +113,12 @@ function CalendarComponent({ data }) {
           newCell.spot = true;
         } else {
           newCell.spot = false;
+        }
+
+        if (!newCell.inPeriod) { //cleanup
+          if (newCell.periodStart) { newCell.periodStart = false;}
+          if (newCell.periodEnd  ) { newCell.periodEnd   = false;}
+          if (newCell.rating > 0 ) { newCell.rating      = 0;    }
         }
 
         newCells.push(newCell);
