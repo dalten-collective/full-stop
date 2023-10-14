@@ -3,7 +3,53 @@
 /-  *blood
 ::
 |%
+++  enjs
+  =,  enjs:format
+  |%
+  ++  pack
+    |_  [f=cord j=json]
+    ++  fact
+      `json`(pairs ~[type+s/'FACT' face=s/f fact+j])
+    ++  scry
+      `json`(pairs ~[type+s/'SCRY' face=s/f fact+j])
+    --
+  ++  last-edit
+    |=(t=^time ~(fact pack 'LAST-RECORDED-EDIT-DATE' (sect t)))
+  ++  mucosal-discharge
+    |=  [p=^time [q=base r=^time] add=?]
+    %~  fact  pack
+    ?-    add
+        %|
+      ['MUCOSAL-DISCHARGE-REM' (frond when+(sect p))]
+    ::
+        %&
+      :-  'MUCOSAL-DISCHARGE-ADD'
+      %-  pairs
+      ~[when+(sect p) heat+s/(scot %rd q) edit+(sect r)]
+    ==
+  ++  basal-temperature
+    |=  [p=^time [q=base r=^time] add=?]
+    %~  fact  pack
+    ?-    add
+        %|
+      ['BASAL-TEMPERATURE-REM' (frond when+(sect p))]
+    ::
+        %&
+      :-  'BASAL-TEMPERATURE-ADD'
+      %-  pairs
+      ~[when+(sect p) heat+s+(scot %rd q) edit+(sect r)]
+    ==
+  ++  spotting
+    |=  [old=spot new=spot]
+    =/  add=(list ^time)  ~(tap in (~(dif in new) old))
+    =/  rem=(list ^time)
+  --
+++  dejs
+  |%
+  ++  test  'fart'
+  --
 ++  from-json
+  ~>  %bout.[0 'from-json:/lib/full-stop']
   %-  ar:dejs:format
   |=  j=json
   =,  dejs:format

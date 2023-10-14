@@ -1,0 +1,11 @@
+.szh-menu__item--type-radio {
+  padding: 0.375rem 1.5rem;
+}
+
+.szh-menu__item--type-radio::before {
+  content: '';
+  position: absolute;
+  left: 0.8rem;
+  top: 0.55rem;
+  font-size: 0.8rem;
+}
